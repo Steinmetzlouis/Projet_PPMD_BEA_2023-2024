@@ -1,0 +1,38 @@
+CREATE TABLE jeu_donnees_test
+(
+    id INT PRIMARY KEY NOT NULL,
+    type VARCHAR(100),
+    Territoire VARCHAR(100),
+    TypeEspace VARCHAR(255),
+    Nom VARCHAR(40),
+    AltrFt INT,
+    AdAssocie VARCHAR(255),
+	
+    NomPartie VARCHAR(20),
+    NumeroPartie INT,
+    NomUsuel VARCHAR(50),
+    Contour VARCHAR(1000),
+    Geometrie geometry,
+	
+	Sequence INT,
+	PlafondRefUnite VARCHAR(10),
+	Plafond INT,
+	Plafond2 INT,
+	PlancherRefUnite VARCHAR(10),
+	Plancher INT,
+	Plancher2 INT,
+	Classe VARCHAR(10),
+	HorCode VARCHAR(10),
+	HorTxt VARCHAR(240),
+	Rtba VARCHAR(10),
+	Activite VARCHAR(240),
+	Remarque VARCHAR(1000),
+	
+	NavType VARCHAR(10),
+	Ident VARCHAR(10),
+	Wgs84 VARCHAR(10),
+	Latitude FLOAT,
+	Longitude FLOAT,
+	Geometrie geometry
+	
+)
