@@ -53,8 +53,7 @@ def get_espace(root):
 # Pass the path of the xml document 
 path = 'Donnees SIA/export_xml_bd_sia_2023-10-05-s2/'
 tree_SIA_10 = ET.parse(str(path)+'XML_SIA_2023-10-05.xml')
-path_donnee_test = 'Dev/'
-tree_donees_test = ET.parse(str(path_donnee_test)+'donnees_test_v2.xml')
+tree_donees_test = ET.parse('donnees_test_v2.xml')
 
 # get the parent tag
 root_SIA_10 = tree_SIA_10.getroot()
