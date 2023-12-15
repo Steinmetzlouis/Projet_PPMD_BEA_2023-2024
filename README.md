@@ -21,3 +21,9 @@ Voici le [fichier](https://github.com/Steinmetzlouis/Projet_PPMD_BEA_2023-2024/b
 ligne de commande à éxecuter dans PostGreSQL
   
 Voici le [fichier](https://github.com/Steinmetzlouis/Projet_PPMD_BEA_2023-2024/blob/BDD/Dev/CREATE%20TABLE%20jeu_donnees_test.txt)
+
+
+## Script Python test:
+Test de parsing et début d'implémentation de la fonction
+  
+Voici le [fichier](https://github.com/Steinmetzlouis/Projet_PPMD_BEA_2023-2024/blob/BDD/Dev/test.py)
