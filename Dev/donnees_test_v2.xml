@@ -1,0 +1,358 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<SiaExport Date="2023-08-10T11:34:18.454+02:00" Origine="Sia-France" Version="5">
+    <Situation pubDate="2023-08-24" effDate="2023-10-05">
+        <EspaceS>
+            <Espace pk="303930" lk="[LF][Aer 9657-1]">
+                <Territoire pk="100" lk="[LF]"/>
+                <TypeEspace>Aer</TypeEspace>
+                <Nom>9657-1</Nom>
+            </Espace>
+            <Espace pk="300226" lk="[LF][TMA BADEN]">
+                <Territoire pk="100" lk="[LF]"/>
+                <TypeEspace>TMA</TypeEspace>
+                <Nom>BADEN</Nom>
+                <AltrFt>5000</AltrFt>
+            </Espace>
+            <Espace pk="304026" lk="[LF][Vol 6607]">
+                <Territoire pk="100" lk="[LF]"/>
+                <TypeEspace>Vol</TypeEspace>
+                <Nom>6607</Nom>
+                <AdAssocie pk="369" lk="[LF][CN]"/>
+            </Espace>
+            <Espace pk="303935" lk="[NT][SUR 050]">
+                <Territoire pk="1100" lk="[NT]"/>
+                <TypeEspace>SUR</TypeEspace>
+                <Nom>050</Nom>
+            </Espace>
+        </EspaceS>
+        <NavFixS>
+            <NavFix pk="1" lk="[LF][VOR-DME ABB]">
+                <Territoire pk="100" lk="[LF]"/>
+                <NavType>VOR-DME</NavType>
+                <Ident>ABB</Ident>
+                <Wgs84>2</Wgs84>
+                <Latitude>50.135128</Latitude>
+                <Longitude>1.854706</Longitude>
+                <Geometrie>50.135128,1.854706</Geometrie>
+            </NavFix>
+            <NavFix pk="4" lk="[LF][DME-ATT AGN]">
+                <Territoire pk="100" lk="[LF]"/>
+                <NavType>DME-ATT</NavType>
+                <Ident>AGN</Ident>
+                <Wgs84>2</Wgs84>
+                <Latitude>43.888039</Latitude>
+                <Longitude>0.872872</Longitude>
+                <Geometrie>43.888039,0.872872</Geometrie>
+            </NavFix>
+        </NavFixS>
+        <PartieS>
+            <Partie pk="301626" lk="[LF][Aer 9657-1][.]">
+                <Espace pk="303930" lk="[LF][Aer 9657-1]"/>
+                <NomPartie>.</NomPartie>
+                <NumeroPartie>10</NumeroPartie>
+                <NomUsuel>MURAT-LE-QUAIRE 1 (63)</NomUsuel>
+                <Contour>1000010,Cloture=307854,45.621667 2.789167,grc(45.621667 2.789167:0m:=)</Contour>
+                <Geometrie>45.621667,2.789167</Geometrie>
+            </Partie>
+            <Partie pk="6589" lk="[LF][TMA BADEN][B]">
+                <Espace pk="300226" lk="[LF][TMA BADEN]"/>
+                <NomPartie>B</NomPartie>
+                <NumeroPartie>20</NumeroPartie>
+                <Contour>1000010,Cloture=30079,48.726111 7.941389,grc(48.726111 7.941389:0m:=)	oui
+1000020,Cloture=30080,48.718611 7.959722,fnt(48.718611 7.959722:12:0m:=)	oui
+1000030,Cloture=30081,48.679167 7.910833,grc(48.679167 7.910833:0m:=)	oui
+1000040,Cloture=30082,48.683056 7.901111,grc(48.683056 7.901111:0m:=)	oui
+1000050,Cloture=30083,48.726111 7.941389,grc(48.726111 7.941389:0m:=)	oui</Contour>
+                <Geometrie>48.726111,7.941389
+48.683056,7.901111
+48.679167,7.910833
+48.718611,7.959722
+48.726111,7.941389</Geometrie>
+            </Partie>
+            <Partie pk="6588" lk="[LF][TMA BADEN][A]">
+                <Espace pk="300226" lk="[LF][TMA BADEN]"/>
+                <NomPartie>A</NomPartie>
+                <NumeroPartie>10</NumeroPartie>
+                <Contour>1000010,Cloture=30074,48.928333 8.130833,grc(48.928333 8.130833:0m:=)	oui
+1000020,Cloture=30075,48.916111 8.160556,fnt(48.916111 8.160556:12:125:124:0m:=)	oui
+1000030,Cloture=30076,48.873056 8.126111,grc(48.873333 8.126111:0m:=)	oui
+1000040,Cloture=30077,48.886944 8.091944,grc(48.886944 8.091944:0m:=)	oui
+1000050,Cloture=30078,48.928333 8.130833,grc(48.928333 8.130833:0m:=)	oui</Contour>
+                <Geometrie>48.928333,8.130833
+48.886944,8.091944
+48.873056,8.126111
+48.886142,8.134203
+48.902403,8.146672
+48.916111,8.160556
+48.928333,8.130833</Geometrie>
+            </Partie>
+            <Partie pk="6591" lk="[LF][TMA BADEN][D]">
+                <Espace pk="300226" lk="[LF][TMA BADEN]"/>
+                <NomPartie>D</NomPartie>
+                <NumeroPartie>40</NumeroPartie>
+                <Contour>1000010,Cloture=30089,48.972222 8.172222,grc(48.972222 8.172222:0m:=)	oui
+1000020,Cloture=30090,48.959722 8.203056,fnt(48.959722 8.203056:12:128:126:0m:=)	oui
+1000030,Cloture=30091,48.916111 8.160556,grc(48.916111 8.160556:0m:=)	oui
+1000040,Cloture=30092,48.928333 8.130833,grc(48.928333 8.130833:0m:=)	oui
+1000050,Cloture=30093,48.972222 8.172222,grc(48.972222 8.172222:0m:=)	oui</Contour>
+                <Geometrie>48.972222,8.172222
+48.928333,8.130833
+48.916111,8.160556
+48.935094,8.179667
+48.951975,8.192078
+48.957261,8.197353
+48.959722,8.203056
+48.972222,8.172222</Geometrie>
+            </Partie>
+            <Partie pk="6590" lk="[LF][TMA BADEN][C]">
+                <Espace pk="300226" lk="[LF][TMA BADEN]"/>
+                <NomPartie>C</NomPartie>
+                <NumeroPartie>30</NumeroPartie>
+                <Contour>1000010,Cloture=30084,48.886944 8.091944,grc(48.886944 8.091944:0m:=)	oui
+1000020,Cloture=30085,48.873056 8.126111,fnt(48.873333 8.126111:12:123:103:0m:=)	oui
+1000030,Cloture=30086,48.718611 7.959722,grc(48.718611 7.959722:0m:=)	oui
+1000040,Cloture=30087,48.726111 7.941389,grc(48.726111 7.941389:0m:=)	oui
+1000050,Cloture=30088,48.886944 8.091944,grc(48.886944 8.091944:0m:=)	oui</Contour>
+                <Geometrie>48.886944,8.091944
+48.726111,7.941389
+48.718611,7.959722
+48.720811,7.962436
+48.727075,7.967258
+48.747586,7.967375
+48.753889,7.96895
+48.758639,7.973147
+48.761125,7.983239
+48.758853,8.002206
+48.760497,8.013122
+48.764125,8.019211
+48.767911,8.022564
+48.782789,8.02605
+48.787389,8.030439
+48.789736,8.036403
+48.790692,8.042686
+48.7889,8.05845
+48.789522,8.063825
+48.792825,8.073036
+48.803214,8.088447
+48.817481,8.102211
+48.840039,8.109611
+48.868989,8.123578
+48.873056,8.126111
+48.886944,8.091944</Geometrie>
+            </Partie>
+            <Partie pk="6592" lk="[LF][TMA BADEN][E]">
+                <Espace pk="300226" lk="[LF][TMA BADEN]"/>
+                <NomPartie>E</NomPartie>
+                <NumeroPartie>50</NumeroPartie>
+                <Contour>1000010,Cloture=30097,48.683056 7.901111,grc(48.683056 7.901111:0m:=)	oui
+1000020,Cloture=30099,48.679167 7.910833,fnt(48.679167 7.910833:12:102:101:0m:=)	oui
+1000030,Cloture=30101,48.656667 7.876667,grc(48.656667 7.876667:0m:=)	oui
+1000040,Cloture=30102,48.683056 7.901111,grc(48.683056 7.901111:0m:=)	oui</Contour>
+                <Geometrie>48.683056,7.901111
+48.656667,7.876667
+48.659644,7.884122
+48.663583,7.891472
+48.679167,7.910833
+48.683056,7.901111</Geometrie>
+            </Partie><Partie pk="6593" lk="[LF][TMA BADEN][F]">
+                <Espace pk="300226" lk="[LF][TMA BADEN]"/>
+                <NomPartie>F</NomPartie>
+                <NumeroPartie>60</NumeroPartie>
+                <Contour>1000010,Cloture=30103,48.978611 8.178056,fnt(48.978611 8.178056:12:144:129:0m:=)	oui
+1000020,Cloture=30104,48.959722 8.203056,grc(48.959722 8.203056:0m:=)	oui
+1000030,Cloture=30105,48.972222 8.172222,grc(48.972222 8.172222:0m:=)	oui
+1000040,Cloture=30106,48.978611 8.178056,grc(48.978611 8.178056:0m:=)	oui</Contour>
+                <Geometrie>48.978611,8.178056
+48.972222,8.172222
+48.959722,8.203056
+48.959828,8.203267
+48.966508,8.232572
+48.968789,8.229592
+48.973928,8.226761
+48.975833,8.223311
+48.974961,8.214361
+48.970125,8.207789
+48.969642,8.203836
+48.9669,8.199767
+48.969228,8.195536
+48.972364,8.197583
+48.977114,8.19455
+48.976592,8.187633
+48.978519,8.184644
+48.977539,8.180456
+48.978283,8.180319
+48.978611,8.178056</Geometrie>
+            </Partie>
+            <Partie pk="301714" lk="[LF][Vol 6607][.]">
+                <Espace pk="304026" lk="[LF][Vol 6607]"/>
+                <NomPartie>.</NomPartie>
+                <NumeroPartie>10</NumeroPartie>
+                <NomUsuel>NOGARO A�rodrome (32)</NomUsuel>
+                <Contour>1000010,Cloture=308412,43.768889 -0.034722,grc(43.768889 -0.034722:0m:=)</Contour>
+                <Geometrie>43.768889,-.034722</Geometrie>
+            </Partie>
+            <Partie pk="301631" lk="[NT][SUR 050][.]">
+                <Espace pk="303935" lk="[NT][SUR 050]"/>
+                <NomPartie>.</NomPartie>
+                <NumeroPartie>10</NumeroPartie>
+                <NomUsuel>Centre p�nitentiaire de TAIOHAE.</NomUsuel>
+                <Contour>1000010,Cloture=307860,-8.913679 -140.094327,cir(-8.913679 -140.094327:0.3:NM:0m:=)</Contour>
+                <Geometrie>-8.908656,-140.094327
+-8.908723,-140.095148
+-8.908922,-140.095948
+-8.909247,-140.096705
+-8.909691,-140.097398
+-8.91024,-140.098009
+-8.910882,-140.098522
+-8.911597,-140.098924
+-8.912368,-140.099204
+-8.913174,-140.099353
+-8.913994,-140.099369
+-8.914805,-140.09925
+-8.915586,-140.099001
+-8.916317,-140.098627
+-8.916977,-140.098138
+-8.917549,-140.097548
+-8.918019,-140.096872
+-8.918372,-140.096129
+-8.918601,-140.095337
+-8.918699,-140.094519
+-8.918664,-140.093696
+-8.918495,-140.092889
+-8.918198,-140.092121
+-8.917781,-140.091411
+-8.917255,-140.090779
+-8.916634,-140.090241
+-8.915934,-140.089813
+-8.915174,-140.089504
+-8.914374,-140.089324
+-8.913556,-140.089277
+-8.912741,-140.089364
+-8.911951,-140.089584
+-8.911207,-140.08993
+-8.910529,-140.090393
+-8.909934,-140.09096
+-8.90944,-140.091617
+-8.909058,-140.092347
+-8.908799,-140.093129
+-8.908671,-140.093943
+-8.908656,-140.094327</Geometrie>
+            </Partie>
+        </PartieS>
+        <TerritoireS>
+            <Territoire pk="1100" lk="[NT]">
+                <Territoire>NT</Territoire>
+                <Nom>POLYNESIE FRANCAISE</Nom>
+            </Territoire>
+            <Territoire pk="100" lk="[LF]">
+                <Territoire>LF</Territoire>
+                <Nom>FRANCE</Nom>
+            </Territoire>
+        </TerritoireS>
+        <VolumeS>
+            <Volume pk="309659" lk="[LF][Aer 9657-1][.][10]">
+                <Partie pk="301626" lk="[LF][Aer 9657-1][.]"/>
+                <Sequence>10</Sequence>
+                <PlafondRefUnite>ft AMSL</PlafondRefUnite>
+                <Plafond>7700</Plafond>
+                <Plafond2>2900</Plafond2>
+                <PlancherRefUnite>SFC</PlancherRefUnite>
+                <Plancher>0</Plancher>
+                <HorCode>HX</HorCode>
+                <HorTxt>SR-SS</HorTxt>
+                <Remarque>Vols radiocommand�s (vol de pente, planeurs de grande envergure).</Remarque>
+            </Volume>
+            <Volume pk="300765" lk="[LF][TMA BADEN][A][10]">
+                <Partie pk="6588" lk="[LF][TMA BADEN][A]"/>
+                <Sequence>10</Sequence>
+                <PlafondRefUnite>ft AMSL</PlafondRefUnite>
+                <Plafond>6500</Plafond>
+                <PlancherRefUnite>ft AMSL</PlancherRefUnite>
+                <Plancher>1500</Plancher>
+                <Classe>D</Classe>
+                <HorCode>H24</HorCode>
+                <HorTxt>H24#TA : 5000 ft</HorTxt>
+            </Volume>
+            <Volume pk="300766" lk="[LF][TMA BADEN][B][10]">
+                <Partie pk="6589" lk="[LF][TMA BADEN][B]"/>
+                <Sequence>10</Sequence>
+                <PlafondRefUnite>ft AMSL</PlafondRefUnite>
+                <Plafond>6500</Plafond>
+                <PlancherRefUnite>ft AMSL</PlancherRefUnite>
+                <Plancher>1500</Plancher>
+                <Classe>D</Classe>
+                <HorCode>H24</HorCode>
+                <HorTxt>H24#TA : 5000 ft</HorTxt>
+            </Volume>
+            <Volume pk="300775" lk="[LF][TMA BADEN][F][10]">
+                <Partie pk="6593" lk="[LF][TMA BADEN][F]"/>
+                <Sequence>10</Sequence>
+                <PlafondRefUnite>ft AMSL</PlafondRefUnite>
+                <Plafond>6500</Plafond>
+                <PlancherRefUnite>ft AMSL</PlancherRefUnite>
+                <Plancher>3500</Plancher>
+                <Classe>D</Classe>
+                <HorCode>H24</HorCode>
+                <HorTxt>H24#TA : 5000 ft</HorTxt>
+            </Volume>
+            <Volume pk="300772" lk="[LF][TMA BADEN][E][10]">
+                <Partie pk="6592" lk="[LF][TMA BADEN][E]"/>
+                <Sequence>10</Sequence>
+                <PlafondRefUnite>ft AMSL</PlafondRefUnite>
+                <Plafond>6500</Plafond>
+                <PlancherRefUnite>ft AMSL</PlancherRefUnite>
+                <Plancher>2500</Plancher>
+                <Classe>D</Classe>
+                <HorCode>H24</HorCode>
+                <HorTxt>H24#TA : 5000 ft</HorTxt>
+            </Volume>
+            <Volume pk="300770" lk="[LF][TMA BADEN][D][10]">
+                <Partie pk="6591" lk="[LF][TMA BADEN][D]"/>
+                <Sequence>10</Sequence>
+                <PlafondRefUnite>ft AMSL</PlafondRefUnite>
+                <Plafond>6500</Plafond>
+                <PlancherRefUnite>ft AMSL</PlancherRefUnite>
+                <Plancher>2500</Plancher>
+                <Classe>D</Classe>
+                <HorCode>H24</HorCode>
+                <HorTxt>H24#TA : 5000 ft</HorTxt>
+            </Volume>
+            <Volume pk="300768" lk="[LF][TMA BADEN][C][10]">
+                <Partie pk="6590" lk="[LF][TMA BADEN][C]"/>
+                <Sequence>10</Sequence>
+                <PlafondRefUnite>ft AMSL</PlafondRefUnite>
+                <Plafond>6500</Plafond>
+                <PlancherRefUnite>ft AMSL</PlancherRefUnite>
+                <Plancher>2500</Plancher>
+                <Classe>D</Classe>
+                <HorCode>H24</HorCode>
+                <HorTxt>H24#TA : 5000 ft</HorTxt>
+            </Volume>
+            <Volume pk="309745" lk="[LF][Vol 6607][.][10]">
+                <Partie pk="301714" lk="[LF][Vol 6607][.]"/>
+                <Sequence>10</Sequence>
+                <PlafondRefUnite>ft AMSL</PlafondRefUnite>
+                <Plafond>4500</Plafond>
+                <PlancherRefUnite>ft AMSL</PlancherRefUnite>
+                <Plancher>1950</Plancher>
+                <Plancher2>1650</Plancher2>
+                <HorCode>HX</HorCode>
+                <HorTxt>SR-SS</HorTxt>
+                <Remarque>Voltige planeur selon protocole avec la base a�rienne de MONT DE MARSAN.#Information des usagers : MARSAN APP, NOGARO A/A.</Remarque>
+            </Volume>
+            <Volume pk="309664" lk="[NT][SUR 050][.][10]">
+                <Partie pk="301631" lk="[NT][SUR 050][.]"/>
+                <Sequence>10</Sequence>
+                <PlafondRefUnite>ft ASFC</PlafondRefUnite>
+                <Plafond>1000</Plafond>
+                <Plafond2>3300</Plafond2>
+                <PlancherRefUnite>SFC</PlancherRefUnite>
+                <Plancher>0</Plancher>
+                <HorCode>HX</HorCode>
+                <Activite>Survol interdit � basse ALT#Low ALT overflight prohibited#1000ft MNM monomoteurs � piston/h�licopt�res#3300ft MNM autres ACFT moto-propuls�s.</Activite>
+                <Remarque>Ile de Nukuhiva#Commune de Taiohae</Remarque>
+            </Volume>
+        </VolumeS>
+        <XtensionS/>
+    </Situation>
+</SiaExport>
