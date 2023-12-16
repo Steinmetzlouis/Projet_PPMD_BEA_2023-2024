@@ -43,6 +43,46 @@ def get_espace(root):
     print('cols: ',cols)
     df = pd.DataFrame(data = data,columns = cols)
     return df
+
+
+def get_espace2(root):
+    
+    cols = []
+    data = []
+    c = 0
+
+    for classe in root[0]:
+        if classe.tag == 'EspaceS':
+            #construction collonnes
+            for espace in classe:
+                for attributs in espace:
+                    if espace.tag not in cols:
+                        cols.append(espace.tag)
+                    elif attributs.tag not in cols:
+                        cols.append(attributs.tag)
+            nb_cols = len(cols)
+            #construction de data
+            for espace in classe:
+                #initialisation de la ligne
+                line = [None]*nb_cols
+                line[0] = espace.attrib
+                for attributs in espace:
+                    #récupération du numéro de la collone             
+                    for i in range(nb_cols):
+                        if attributs.tag == cols[i]:
+                            if attributs.text == None:
+                                line[i] = attributs.attrib
+                            else:
+                                line[i] = attributs.text
+                data.append(line)
+                c += 1
+                if c > 1000:
+                    break
+                                
+    # print('data: ',data)
+    print('cols: ',cols)
+    df = pd.DataFrame(data = data,columns = cols)
+    return df
                     
 
 
@@ -123,7 +163,10 @@ for elt in situation_SIA_10:
         
             
 # df_espace = get_espace(root_SIA_10)
-df_espace_test = get_espace(root_donees_test) 
+df_espace = get_espace2(root_SIA_10)
+# df_espace_test = get_espace(root_donees_test) 
+df_espace_test = get_espace2(root_donees_test) 
+# df_espaces_test_line3 = df_espaces_test[3:4]
 
 
 ### ------------------------    With BeautifulSoup    ------------------------ ###
