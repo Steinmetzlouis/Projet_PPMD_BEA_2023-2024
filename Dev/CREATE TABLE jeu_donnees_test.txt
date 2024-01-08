@@ -1,3 +1,4 @@
+CREATE EXTENSION postgis;
 CREATE TABLE jeu_donnees_test
 (
     id INT PRIMARY KEY NOT NULL,
@@ -12,7 +13,7 @@ CREATE TABLE jeu_donnees_test
     NumeroPartie INT,
     NomUsuel VARCHAR(50),
     Contour VARCHAR(1000),
-    Geometrie geometry,
+    PartieGeometrie geometry,
 	
 	Sequence INT,
 	PlafondRefUnite VARCHAR(10),
@@ -33,6 +34,6 @@ CREATE TABLE jeu_donnees_test
 	Wgs84 VARCHAR(10),
 	Latitude FLOAT,
 	Longitude FLOAT,
-	Geometrie geometry
+	NavFixGeometrie geometry
 	
 )

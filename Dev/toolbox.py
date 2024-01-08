@@ -167,9 +167,11 @@ if __name__ == "__main__":
     root_donees_test = tree_donees_test.getroot()
     
     #test fonctions
-    # df_espaces = get_espaces(root_SIA_10)
-    # df_espaces_test = get_espaces(root_donees_test)
-    # df_parties_test = get_parties(root_donees_test) 
-    # df_volumes_test = get_volumes(root_donees_test)
+    df_espaces = get_espaces(root_SIA_10)
+    df_espaces_test = get_espaces(root_donees_test)
+    df_parties_test = get_parties(root_donees_test)
+    df_parties = get_parties(root_SIA_10) 
+    df_volumes_test = get_volumes(root_donees_test)
+    df_volumes = get_volumes(root_SIA_10)
     
     BDDG_espaces_test,L = construct_BDDG_espaces(root_donees_test)
