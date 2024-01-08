@@ -125,24 +125,77 @@ def construct_BDDG_espaces(root):
     
     data = pd.DataFrame([])
     L=[]
+    #Pour chaque espace on stoque ses infos et on garde son identifiant
+    for espace in df_espaces.index:
+        nom_espace = df_espaces.loc[espace,"Espace"]
+        print('nom_espace: ',nom_espace)
+        line_espace = df_espaces[espace:espace+1]
+        
+        #Pour chaque partie ayant comme espace associé l'id de l'espace observé, alors on stoque ses infos et on garde son identifiant
+        for partie in df_parties.index:
+            if (df_parties.loc[partie,"Espace"] == nom_espace) == True:
+                nom_partie = df_parties.loc[partie,"Partie"]
+                print('nom_partie: ',nom_partie)
+                line_partie = df_parties.loc[partie:partie+1]
+                print('line_partie: ',line_partie)
+                #Pour chaque volume ayant comme partie associé l'id de la partie observé, alors on stoque ses infos
+                for volume in df_volumes.index:
+                    if (df_volumes.loc[volume,"Partie"] == nom_partie) == True:
+                        line_volume = df_volumes[volume:volume+1]
+                        
+                        #On construit la ligne associé à ce volume
+                        # type_df = pd.DataFrame(data = ["Volume"],columns = ["Type"])
+                        type_df = pd.DataFrame({"Type": ["Volume"]})
+                        line = pd.concat([type_df,line_espace,line_partie,line_volume], ignore_index=True, axis=1)
+                        # line = pd.concat([type_df,line_espace], ignore_index=True, axis=1)
+                        L.append(line)
+                        data = pd.concat([data, line], ignore_index=True)
+                        
+    return data,L
+
+
+def construct_BDDG_espaces2(root):
     
+    df_espaces = get_espaces(root)
+    df_parties = get_parties(root)
+    df_volumes = get_volumes(root)
+    
+    data = pd.DataFrame([])
+    L=[]
+    c=0
+    #Pour chaque espace on stoque ses infos et on garde son identifiant
     for espace in df_espaces.index:
         #    = [id,   Type]
         # line = [None, None]
         nom_espace = df_espaces.loc[espace,"Espace"]
         line_espace = df_espaces[espace:espace+1]
+        
+        #Pour chaque partie ayant comme espace associé l'id de l'espace observé, alors on stoque ses infos et on garde son identifiant
         for partie in df_parties.index:
-            if df_parties.loc[partie,"Espace"] == nom_espace:
+            if (df_parties.loc[partie,"Espace"] == nom_espace) == True:
                 nom_partie = df_parties.loc[partie,"Partie"]
+                print("nom_partie: ",nom_partie)
                 line_partie = df_espaces.loc[partie:partie+1]
+                #Pour chaque volume ayant comme partie associé l'id de la partie observé, alors on stoque ses infos
                 for volume in df_volumes.index:
-                    if df_volumes.loc[partie,"Partie"] == nom_partie:
+                    if (df_volumes.loc[partie,"Partie"] == nom_partie) == True:
                         line_volume = df_volumes[volume:volume+1]
                         
-                        type_df = pd.DataFrame(data = ["Volume"],columns = ["Type"])
-                        print('type_df: ',type_df)
-                        line = pd.concat([type_df,line_espace,line_partie,line_volume], ignore_index=True, axis=1)
+                        #On construit la ligne associé à ce volume
+                        
+                        # type_df = pd.DataFrame(data = ["Volume"],columns = ["Type"])
+                        type_df = pd.DataFrame({"Type": ["Volume"]})
+                        # print('type_df: \n',type_df)
+                        # print('type_df.shape: \n',type_df.shape)
+                        # print('line_espace: \n',line_espace)
+                        print('line_partie: \n',line_partie)
+                        # print('line_volume: \n',line_volume)
+                        # line = pd.concat([type_df,line_espace,line_partie,line_volume], ignore_index=True, axis=1)
+                        line = pd.concat([type_df,line_espace], ignore_index=True, axis=1)
                         L.append(line)
+                        # print('line: \n',line)
+                        print('c=',c)
+                        c+=1
                         # line = pd.concat([line_espace,line_partie,line_volume], ignore_index=True)
                         data = pd.concat([data, line], ignore_index=True)
                         
@@ -169,8 +222,10 @@ if __name__ == "__main__":
     #test fonctions
     df_espaces = get_espaces(root_SIA_10)
     df_espaces_test = get_espaces(root_donees_test)
+    
     df_parties_test = get_parties(root_donees_test)
-    df_parties = get_parties(root_SIA_10) 
+    df_parties = get_parties(root_SIA_10)
+    
     df_volumes_test = get_volumes(root_donees_test)
     df_volumes = get_volumes(root_SIA_10)
     
