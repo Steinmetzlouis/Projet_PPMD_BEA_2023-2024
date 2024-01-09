@@ -165,11 +165,9 @@ def construct_BDDG_espaces2(root):
     
     #Pour chaque espace on stoque ses infos et on garde son identifiant
     for espace in df_espaces.index:
-        #    = [id,   Type]
-        # line = [None, None]
+        
         nom_espace = df_espaces.loc[espace,"Espace"]
         line_espace = df_espaces[espace:espace+1]
-        print('espace: \n',espace)
         
         #Construction du dataframe contenant toutes les parties de cet espace
         df_parties_espace = df_parties.query("Espace == @nom_espace")
@@ -177,12 +175,12 @@ def construct_BDDG_espaces2(root):
         #Pour chaque partie on stoque ses infos et on garde son identifiant
         for partie in df_parties_espace.index:
             nom_partie = df_parties_espace.loc[partie,"Partie"]
-            line_partie = df_parties_espace.loc[partie:partie+1]
-            print('partie: \n',partie)
+            line_partie = df_parties_espace[partie:partie+1]
             print('line_partie: \n',line_partie)
             
             #Construction du dataframe contenant toutes les parties de cet espace
             df_volumes_partie = df_volumes.query("Partie == @nom_partie")
+            # print('df_volumes_partie: \n',df_volumes_partie)
             
             #Pour chaque volume ayant comme partie associé l'id de la partie observé, alors on stoque ses infos
             for volume in df_volumes_partie.index:
@@ -228,3 +226,4 @@ if __name__ == "__main__":
     
     # BDDG_espaces_test,L = construct_BDDG_espaces(root_donees_test)
     BDDG_espaces_test = construct_BDDG_espaces2(root_donees_test)
+    # BDDG_espaces = construct_BDDG_espaces2(root_SIA_10)
