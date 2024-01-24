@@ -9,19 +9,21 @@ Created on Sat Dec 16 15:18:45 2023
 ### ------------------------    Imports    ------------------------ ###
 import xml.etree.ElementTree as ET
 import pandas as pd
-
+#os.system(wget_request)
+# wget_request = 'wget --user={} --password={} --load-cookies {}  --save-cookies {}  --auth-no-challenge=on --keep-session-cookies -P {} --content-disposition  {}'
+# https://www.geeksforgeeks.org/how-to-insert-a-pandas-dataframe-to-an-existing-postgresql-table/
 
 
 
 ### ------------------------    Fonctions    ------------------------ ###
 
-def get_espaces(root):
+def get_classe(root, element):
     
     cols = []
     data = []
 
     for classe in root[0]:
-        if classe.tag == 'EspaceS':
+        if classe.tag == element:
             #construction collonnes
             for espace in classe:
                 for attributs in espace:
@@ -31,79 +33,11 @@ def get_espaces(root):
                         cols.append(attributs.tag)
             nb_cols = len(cols)
             #construction de data
-            for espace in classe:
+            for childe in classe:
                 #initialisation de la ligne
                 line = [None]*nb_cols
-                line[0] = espace.attrib
-                for attributs in espace:
-                    #récupération du numéro de la collone             
-                    for i in range(nb_cols):
-                        if attributs.tag == cols[i]:
-                            if attributs.text == None:
-                                line[i] = attributs.attrib
-                            else:
-                                line[i] = attributs.text
-                data.append(line)
-                                
-    df = pd.DataFrame(data = data,columns = cols)
-    return df
-
-
-def get_parties(root):
-    
-    cols = []
-    data = []
-
-    for classe in root[0]:
-        if classe.tag == 'PartieS':
-            #construction collonnes
-            for partie in classe:
-                for attributs in partie:
-                    if partie.tag not in cols:
-                        cols.append(partie.tag)
-                    elif attributs.tag not in cols:
-                        cols.append(attributs.tag)
-            nb_cols = len(cols)
-            #construction de data
-            for partie in classe:
-                #initialisation de la ligne
-                line = [None]*nb_cols
-                line[0] = partie.attrib
-                for attributs in partie:
-                    #récupération du numéro de la collone             
-                    for i in range(nb_cols):
-                        if attributs.tag == cols[i]:
-                            if attributs.text == None:
-                                line[i] = attributs.attrib
-                            else:
-                                line[i] = attributs.text
-                data.append(line)
-                                
-    df = pd.DataFrame(data = data,columns = cols)
-    return df
-
-
-def get_volumes(root):
-    
-    cols = []
-    data = []
-
-    for classe in root[0]:
-        if classe.tag == 'VolumeS':
-            #construction collonnes
-            for volume in classe:
-                for attributs in volume:
-                    if volume.tag not in cols:
-                        cols.append(volume.tag)
-                    elif attributs.tag not in cols:
-                        cols.append(attributs.tag)
-            nb_cols = len(cols)
-            #construction de data
-            for volume in classe:
-                #initialisation de la ligne
-                line = [None]*nb_cols
-                line[0] = volume.attrib
-                for attributs in volume:
+                line[0] = childe.attrib
+                for attributs in childe:
                     #récupération du numéro de la collone             
                     for i in range(nb_cols):
                         if attributs.tag == cols[i]:
@@ -119,47 +53,10 @@ def get_volumes(root):
 
 def construct_BDDG_espaces(root):
     
-    df_espaces = get_espaces(root)
-    df_parties = get_parties(root)
-    df_volumes = get_volumes(root)
+    df_espaces = get_classe(root,'EspaceS')
+    df_parties = get_classe(root,'PartieS')
+    df_volumes = get_classe(root,'VolumeS')
     
-    data = pd.DataFrame([])
-    L=[]
-    #Pour chaque espace on stoque ses infos et on garde son identifiant
-    for espace in df_espaces.index:
-        nom_espace = df_espaces.loc[espace,"Espace"]
-        print('nom_espace: ',nom_espace)
-        line_espace = df_espaces[espace:espace+1]
-        
-        #Pour chaque partie ayant comme espace associé l'id de l'espace observé, alors on stoque ses infos et on garde son identifiant
-        for partie in df_parties.index:
-            if (df_parties.loc[partie,"Espace"] == nom_espace) == True:
-                nom_partie = df_parties.loc[partie,"Partie"]
-                print('nom_partie: ',nom_partie)
-                line_partie = df_parties.loc[partie:partie+1]
-                print('line_partie: ',line_partie)
-                #Pour chaque volume ayant comme partie associé l'id de la partie observé, alors on stoque ses infos
-                for volume in df_volumes.index:
-                    if (df_volumes.loc[volume,"Partie"] == nom_partie) == True:
-                        line_volume = df_volumes[volume:volume+1]
-                        
-                        #On construit la ligne associé à ce volume
-                        # type_df = pd.DataFrame(data = ["Volume"],columns = ["Type"])
-                        type_df = pd.DataFrame({"Type": ["Volume"]})
-                        line = pd.concat([type_df,line_espace,line_partie,line_volume], ignore_index=True, axis=1)
-                        # line = pd.concat([type_df,line_espace], ignore_index=True, axis=1)
-                        L.append(line)
-                        data = pd.concat([data, line], ignore_index=True)
-                        
-    return data,L
-
-
-def construct_BDDG_espaces2(root):
-    #use query
-    
-    df_espaces = get_espaces(root)
-    df_parties = get_parties(root)
-    df_volumes = get_volumes(root)
     
     data = pd.DataFrame([])
     
@@ -167,33 +64,43 @@ def construct_BDDG_espaces2(root):
     for espace in df_espaces.index:
         
         nom_espace = df_espaces.loc[espace,"Espace"]
-        line_espace = df_espaces[espace:espace+1]
+        line_espace = df_espaces.loc[espace:espace].reset_index(drop=True)
         
         #Construction du dataframe contenant toutes les parties de cet espace
         df_parties_espace = df_parties.query("Espace == @nom_espace")
         
         #Pour chaque partie on stoque ses infos et on garde son identifiant
         for partie in df_parties_espace.index:
+           
             nom_partie = df_parties_espace.loc[partie,"Partie"]
-            line_partie = df_parties_espace[partie:partie+1]
-            print('line_partie: \n',line_partie)
+            line_partie = df_parties_espace.loc[partie:partie].reset_index(drop=True).drop(columns="Espace")
             
             #Construction du dataframe contenant toutes les parties de cet espace
             df_volumes_partie = df_volumes.query("Partie == @nom_partie")
-            # print('df_volumes_partie: \n',df_volumes_partie)
             
             #Pour chaque volume ayant comme partie associé l'id de la partie observé, alors on stoque ses infos
             for volume in df_volumes_partie.index:
-                line_volume = df_volumes_partie[volume:volume+1]
+                nom_volume = df_volumes_partie.loc[volume,"Volume"]
+                line_volume = df_volumes_partie.loc[volume:volume].reset_index(drop=True).drop(columns="Partie")
                         
                 #On construit la ligne associé à ce volume
                 type_df = pd.DataFrame({"Type": ["Volume"]})
-                # line = pd.concat([type_df,line_espace,line_partie,line_volume], ignore_index=True, axis=1)
-                # line = pd.concat([type_df,line_espace], ignore_index=True, axis=1)
-                line = pd.concat([line_espace,line_partie,line_volume], ignore_index=True)
-                # print('line: ',line)
+                line = pd.concat([type_df,line_espace,line_partie,line_volume], axis=1)
                 data = pd.concat([data, line], ignore_index=True)
                         
+    return data
+
+
+def construct_BDDG(root):
+    
+    df_bddg_espace = construct_BDDG_espaces(root)
+    df_navfixs = get_classe(root,'NavFixS')
+    
+    for navfix in df_navfixs.index:
+        df_navfixs.loc[navfix,"Type"] = "NavFix"
+    
+    data = pd.concat([df_bddg_espace, df_navfixs], ignore_index=True)
+    
     return data
 
 
@@ -215,15 +122,16 @@ if __name__ == "__main__":
     root_donees_test = tree_donees_test.getroot()
     
     #test fonctions
-    df_espaces = get_espaces(root_SIA_10)
-    df_espaces_test = get_espaces(root_donees_test)
+    df_espaces = get_classe(root_SIA_10,'EspaceS')
+    df_espaces_test = get_classe(root_donees_test,'EspaceS')
     
-    df_parties_test = get_parties(root_donees_test)
-    df_parties = get_parties(root_SIA_10)
+    df_parties_test = get_classe(root_donees_test,'PartieS')
+    df_parties = get_classe(root_SIA_10,'PartieS')
     
-    df_volumes_test = get_volumes(root_donees_test)
-    df_volumes = get_volumes(root_SIA_10)
+    df_volumes_test = get_classe(root_donees_test,'VolumeS')
+    df_volumes = get_classe(root_SIA_10,'VolumeS')
     
-    # BDDG_espaces_test,L = construct_BDDG_espaces(root_donees_test)
-    BDDG_espaces_test = construct_BDDG_espaces2(root_donees_test)
-    # BDDG_espaces = construct_BDDG_espaces2(root_SIA_10)
+    BDDG_espaces_test = construct_BDDG_espaces(root_donees_test)
+    # BDDG_espaces = construct_BDDG_espaces(root_SIA_10)
+    
+    BDDG_test = construct_BDDG(root_donees_test)
