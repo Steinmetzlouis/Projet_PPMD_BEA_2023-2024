@@ -26,19 +26,19 @@ def get_classe(root, element):
     for classe in root[0]:
         if classe.tag == element:
             #construction collonnes
-            for childe in classe:
-                for attributs in childe:
-                    if childe.tag not in cols:
-                        cols.append(childe.tag)
+            for child in classe:
+                for attributs in child:
+                    if child.tag not in cols:
+                        cols.append(child.tag)
                     elif attributs.tag not in cols:
                         cols.append(attributs.tag)
             nb_cols = len(cols)
             #construction de data
-            for childe in classe:
+            for child in classe:
                 #initialisation de la ligne
                 line = [None]*nb_cols
-                line[0] = childe.attrib
-                for attributs in childe:
+                line[0] = child.attrib
+                for attributs in child:
                     #récupération du numéro de la collone             
                     for i in range(nb_cols):
                         if attributs.tag == cols[i]:
@@ -199,16 +199,14 @@ def construct_BDDG_ad(root):
 
 def construct_BDDG(root):
     
-    # df_bddg_espace = construct_BDDG_espaces(root)
-    # df_navfixs = get_classe(root,'NavFixS')
-    df_bddg_espace = construct_BDDG_espaces(root).drop(columns=["Espace","Territoire","Partie","Volume","AdAssocie"])
-    df_navfixs = get_classe(root,'NavFixS').drop(columns=["NavFix","Territoire"])
+    df_bddg_espace = construct_BDDG_espaces(root)
+    df_navfixs = get_classe(root,'NavFixS')
     
     for navfix in df_navfixs.index:
         df_navfixs.loc[navfix,"Type"] = "NavFix"
     
     data = pd.concat([df_bddg_espace, df_navfixs], ignore_index=True)
-    # data.drop(columns=["Espace","Territoire","Partie","Volume","NavFix"])
+    data = data.astype(str)
     
     return data
 
@@ -230,27 +228,27 @@ if __name__ == "__main__":
     root_donees_test = tree_donees_test.getroot()
     
     # test fonctions
-    # df_espaces = get_classe(root_SIA_10,'EspaceS')
-    # df_espaces_test = get_classe(root_donees_test,'EspaceS')
+    df_espaces = get_classe(root_SIA_10,'EspaceS')
+    df_espaces_test = get_classe(root_donees_test,'EspaceS')
     
-    # df_parties_test = get_classe(root_donees_test,'PartieS')
-    # df_parties = get_classe(root_SIA_10,'PartieS')
+    df_parties_test = get_classe(root_donees_test,'PartieS')
+    df_parties = get_classe(root_SIA_10,'PartieS')
     
-    # df_volumes_test = get_classe(root_donees_test,'VolumeS')
-    # df_volumes = get_classe(root_SIA_10,'VolumeS')
+    df_volumes_test = get_classe(root_donees_test,'VolumeS')
+    df_volumes = get_classe(root_SIA_10,'VolumeS')
     
-    # df_territoires_test = get_classe(root_donees_test,'TerritoireS')
-    # df_territoires = get_classe(root_SIA_10,'TerritoireS')
+    df_territoires_test = get_classe(root_donees_test,'TerritoireS')
+    df_territoires = get_classe(root_SIA_10,'TerritoireS')
     
-    df_ad = get_classe(root_SIA_10,'AdS')
-    df_vorinschk = get_classe(root_SIA_10,'VorInsChkS')
-    df_rwy = get_classe(root_SIA_10,'RwyS')
-    df_ils = get_classe(root_SIA_10,'IlsS')
-    df_rwylgt = get_classe(root_SIA_10,'RwyLgtS')
-    df_twydecdist = get_classe(root_SIA_10,'TwyDecDistS')
-    df_dmeils = get_classe(root_SIA_10,'DmeIlsS')
-    df_gp = get_classe(root_SIA_10,'GpS')
-    df_mkr = get_classe(root_SIA_10,'MkrS')
+    # df_ad = get_classe(root_SIA_10,'AdS')
+    # df_vorinschk = get_classe(root_SIA_10,'VorInsChkS')
+    # df_rwy = get_classe(root_SIA_10,'RwyS')
+    # df_ils = get_classe(root_SIA_10,'IlsS')
+    # df_rwylgt = get_classe(root_SIA_10,'RwyLgtS')
+    # df_twydecdist = get_classe(root_SIA_10,'TwyDecDistS')
+    # df_dmeils = get_classe(root_SIA_10,'DmeIlsS')
+    # df_gp = get_classe(root_SIA_10,'GpS')
+    # df_mkr = get_classe(root_SIA_10,'MkrS')
     
     # BDDG_espaces_test = construct_BDDG_espaces(root_donees_test)
     # BDDG_espaces = construct_BDDG_espaces(root_SIA_10)
