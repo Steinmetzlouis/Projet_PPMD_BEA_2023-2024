@@ -254,7 +254,7 @@ if __name__ == "__main__":
     # BDDG_espaces = construct_BDDG_espaces(root_SIA_10)
     
     # BDDG_test = construct_BDDG(root_donees_test)
-    # BDDG = construct_BDDG(root_SIA_10)
+    BDDG = construct_BDDG(root_SIA_10)
     
     # connexion postgres
     conn_params = {
@@ -274,7 +274,7 @@ if __name__ == "__main__":
     # Convertir le DataFrame en table PostgreSQL
     table_name = 'XML_SIA_2023-10-05'
     # BDDG_test.to_sql(table_name, engine, if_exists='replace', index=False)
-    # BDDG.to_sql(table_name, engine, if_exists='replace', index=False)
+    BDDG.to_sql(table_name, engine, if_exists='replace', index=False)
 
     # Fermer la connexion à la base de données
     conn.close()
