@@ -354,6 +354,19 @@ def create_database(path, filename, conn_params):
 ### ------------------------    Main    ------------------------ ###
 
 if __name__ == "__main__":
+    """
+    Action:
+    - Exécute la fonction create_database pour créer une base de données avec les données extraites du fichier XML.
+
+    Paramètres:
+    - path (str): Le chemin vers le répertoire du fichier XML.
+    - file (str): Le nom du fichier XML contenant les données géospatiales.
+    - conn_params (dict): Les paramètres de connexion à la base de données PostgreSQL.
+
+    Remarques:
+    - Assurez-vous d'avoir les bibliothèques nécessaires installées (GeoPandas, psycopg2, SQLAlchemy, geoalchemy2).
+    - Les paramètres de connexion PostgreSQL sont personels et doivent être spécifiés dans le dictionnaire conn_params.
+    """
     
     ### ------------------------    Parsing with ETREE    ------------------------ ###
     
