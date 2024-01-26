@@ -13,7 +13,6 @@ import numpy as np
 import geopandas as gpd
 import psycopg2
 import ast
-import re
 from sqlalchemy import create_engine
 
 
