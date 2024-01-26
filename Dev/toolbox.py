@@ -284,9 +284,9 @@ def construct_BDDG_ad(root):
     data_mkr = data_mkr.reset_index(drop=True)
         
     # data = pd.concat([data_ad, data_vorinschk],ignore_index=True)
-    data = pd.concat([data_ad, data_vorinschk, data_rwy, data_rwylgt, data_twydecdist, data_ils, data_dmeils, data_gp, data_mkr], ignore_index=True)
-    return data
-    # return data_ad, data_vorinschk, data_rwy, data_rwylgt, data_twydecdist, data_ils, data_dmeils, data_gp, data_mkr
+    # data = pd.concat([data_ad, data_vorinschk, data_rwy, data_rwylgt, data_twydecdist, data_ils, data_dmeils, data_gp, data_mkr], ignore_index=True)
+    # return data
+    return data_ad, data_vorinschk, data_rwy, data_rwylgt, data_twydecdist, data_ils, data_dmeils, data_gp, data_mkr
 
 
 
@@ -347,7 +347,11 @@ if __name__ == "__main__":
     # BDDG_espaces = construct_BDDG_espaces(root_SIA_10)
     
     # BDDG_ad = construct_BDDG_ad(root_SIA_10)
-    # data_ad, data_vorinschk, data_rwy, data_rwylgt, data_twydecdist, data_ils, data_dmeils, data_gp, data_mkr = construct_BDDG_ad(root_SIA_10)
+    data_ad, data_vorinschk, data_rwy, data_rwylgt, data_twydecdist, data_ils, data_dmeils, data_gp, data_mkr = construct_BDDG_ad(root_SIA_10)
+    mon_path='../../../'
+    data_vorinschk.to_pickle(mon_path+'df_vorinschk')
+    data_rwy.to_pickle(mon_path+'df_rwy')
+    
     
     # BDDG_test = construct_BDDG(root_donees_test)
     # gdf = gpd.GeoDataFrame(BDDG_test,
