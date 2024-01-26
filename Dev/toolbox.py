@@ -348,9 +348,6 @@ if __name__ == "__main__":
     
     # BDDG_ad = construct_BDDG_ad(root_SIA_10)
     data_ad, data_vorinschk, data_rwy, data_rwylgt, data_twydecdist, data_ils, data_dmeils, data_gp, data_mkr = construct_BDDG_ad(root_SIA_10)
-    mon_path='../../../'
-    data_vorinschk.to_pickle(mon_path+'df_vorinschk')
-    data_rwy.to_pickle(mon_path+'df_rwy')
     
     
     # BDDG_test = construct_BDDG(root_donees_test)
