@@ -12,6 +12,7 @@ import pandas as pd
 import numpy as np
 import geopandas as gpd
 import psycopg2
+import ast
 from sqlalchemy import create_engine
 
 
@@ -138,6 +139,17 @@ def construct_BDDG_espaces(root):
     return data
 
 
+def ajout_lk(dataframe):
+    
+    for line in dataframe.index:
+        type_line = dataframe.loc[line,"Type"]
+        pk = ast.literal_eval(dataframe.loc[line,type_line])
+        lk = pk['lk']
+        dataframe.loc[line, "lk"] = lk
+    
+    return dataframe
+
+
 def construct_BDDG(root):
     
     df_bddg_espace = construct_BDDG_espaces(root)
@@ -148,6 +160,7 @@ def construct_BDDG(root):
     
     data = pd.concat([df_bddg_espace, df_navfixs], ignore_index=True)
     data = data.astype(str)
+    data = ajout_lk(data)
     
     return data
 

@@ -12,6 +12,7 @@ import pandas as pd
 import numpy as np
 import geopandas as gpd
 import psycopg2
+import ast
 from sqlalchemy import create_engine
 #os.system(wget_request)
 # wget_request = 'wget --user={} --password={} --load-cookies {}  --save-cookies {}  --auth-no-challenge=on --keep-session-cookies -P {} --content-disposition  {}'
@@ -288,7 +289,15 @@ def construct_BDDG_ad(root):
     # return data
     return data_ad, data_vorinschk, data_rwy, data_rwylgt, data_twydecdist, data_ils, data_dmeils, data_gp, data_mkr
 
-
+def ajout_lk(dataframe):
+    
+    for line in dataframe.index:
+        type_line = dataframe.loc[line,"Type"]
+        pk = ast.literal_eval(dataframe.loc[line,type_line])
+        lk = pk['lk']
+        dataframe.loc[line, "lk"] = lk
+    
+    return dataframe
 
 def construct_BDDG(root):
     
@@ -300,6 +309,7 @@ def construct_BDDG(root):
     
     data = pd.concat([df_bddg_espace, df_navfixs], ignore_index=True)
     data = data.astype(str)
+    data = ajout_lk(data)
     
     return data
 
@@ -330,43 +340,46 @@ if __name__ == "__main__":
     # df_volumes_test = get_classe(root_donees_test,'VolumeS')
     # df_volumes = get_classe(root_SIA_10,'VolumeS')
     
-    df_territoires_test = get_classe(root_donees_test,'TerritoireS')
-    df_territoires = get_classe(root_SIA_10,'TerritoireS')
+    # df_territoires_test = get_classe(root_donees_test,'TerritoireS')
+    # df_territoires = get_classe(root_SIA_10,'TerritoireS')
     
-    df_ad = get_classe(root_SIA_10,'AdS')
-    df_vorinschk = get_classe(root_SIA_10,'VorInsChkS')
-    df_rwy = get_classe(root_SIA_10,'RwyS')
-    df_ils = get_classe(root_SIA_10,'IlsS')
-    df_rwylgt = get_classe(root_SIA_10,'RwyLgtS')
-    df_twydecdist = get_classe(root_SIA_10,'TwyDecDistS')
-    df_dmeils = get_classe(root_SIA_10,'DmeIlsS')
-    df_gp = get_classe(root_SIA_10,'GpS')
-    df_mkr = get_classe(root_SIA_10,'MkrS')
+    # df_ad = get_classe(root_SIA_10,'AdS')
+    # df_vorinschk = get_classe(root_SIA_10,'VorInsChkS')
+    # df_rwy = get_classe(root_SIA_10,'RwyS')
+    # df_ils = get_classe(root_SIA_10,'IlsS')
+    # df_rwylgt = get_classe(root_SIA_10,'RwyLgtS')
+    # df_twydecdist = get_classe(root_SIA_10,'TwyDecDistS')
+    # df_dmeils = get_classe(root_SIA_10,'DmeIlsS')
+    # df_gp = get_classe(root_SIA_10,'GpS')
+    # df_mkr = get_classe(root_SIA_10,'MkrS')
     
     # BDDG_espaces_test = construct_BDDG_espaces(root_donees_test)
     # BDDG_espaces = construct_BDDG_espaces(root_SIA_10)
     
     # BDDG_ad = construct_BDDG_ad(root_SIA_10)
-    data_ad, data_vorinschk, data_rwy, data_rwylgt, data_twydecdist, data_ils, data_dmeils, data_gp, data_mkr = construct_BDDG_ad(root_SIA_10)
+    # data_ad, data_vorinschk, data_rwy, data_rwylgt, data_twydecdist, data_ils, data_dmeils, data_gp, data_mkr = construct_BDDG_ad(root_SIA_10)
     
     
-    # BDDG_test = construct_BDDG(root_donees_test)
+    BDDG_test = construct_BDDG(root_donees_test)
+    
     # gdf = gpd.GeoDataFrame(BDDG_test,
     #                        geometry=gpd.points_from_xy(BDDG_test.Longitude, BDDG_test.Latitude),
     #                        crs="EPSG:4326")
     # gdf = gpd.GeoDataFrame(BDDG_test,
     #                        geometry=gpd.GeoSeries.from_wkt(BDDG_test.Longitude, BDDG_test.Latitude),
     #                        crs="EPSG:4326")
-    BDDG = construct_BDDG(root_SIA_10)
+    
+    # BDDG = construct_BDDG(root_SIA_10)
+    
     # gdf = gpd.GeoDataFrame(BDDG,
     #                        geometry=gpd.points_from_xy(BDDG.Longitude, BDDG.Latitude),
     #                        crs="EPSG:4326")
     # print(BDDG.Geometrie)
 
-    BDDG["wkt"] = BDDG.Geometrie.apply(create_wkt_object_from_string)
-    gdf = gpd.GeoDataFrame(BDDG,
-                           geometry=gpd.GeoSeries.from_wkt(BDDG.wkt),
-                           crs="EPSG:4326")
+    # BDDG["wkt"] = BDDG.Geometrie.apply(create_wkt_object_from_string)
+    # gdf = gpd.GeoDataFrame(BDDG,
+    #                        geometry=gpd.GeoSeries.from_wkt(BDDG.wkt),
+    #                        crs="EPSG:4326")
     
     # connexion postgres
     conn_params = {
@@ -395,7 +408,7 @@ if __name__ == "__main__":
     table_name = 'XML_SIA_2023-10-05'
     # BDDG_test.to_sql(table_name, engine, if_exists='replace', index=False)
 
-    gdf.to_postgis(table_name, engine, if_exists='replace', index=True, index_label="pk")
+    # gdf.to_postgis(table_name, engine, if_exists='replace', index=True, index_label="pk")
     
     # BDDG.to_sql(table_name, engine, if_exists='replace', index=False)
 
