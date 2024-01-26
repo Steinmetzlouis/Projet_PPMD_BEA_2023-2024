@@ -140,156 +140,6 @@ def construct_BDDG_espaces(root):
     return data
 
 
-def construct_BDDG_ad(root):
-    
-    df_ad = get_classe(root,'AdS')
-    df_vorinschk = get_classe(root,'VorInsChkS')
-    df_rwy = get_classe(root,'RwyS')
-    df_ils = get_classe(root,'IlsS')
-    df_rwylgt = get_classe(root,'RwyLgtS')
-    df_twydecdist = get_classe(root,'TwyDecDistS')
-    df_dmeils = get_classe(root,'DmeIlsS')
-    df_gp = get_classe(root,'GpS')
-    df_mkr = get_classe(root,'MkrS')
-    
-    data_ad = pd.DataFrame([])
-    data_vorinschk = pd.DataFrame([])
-    data_rwy = pd.DataFrame([])
-    data_rwylgt = pd.DataFrame([])
-    data_twydecdist = pd.DataFrame([])
-    data_ils = pd.DataFrame([])
-    data_dmeils = pd.DataFrame([])
-    data_gp = pd.DataFrame([])
-    data_mkr = pd.DataFrame([])
-    c=0
-    
-    #Pour chaque aérodrome on stoque ses infos et on garde son identifiant
-    for ad in df_ad.index:
-        
-        nom_ad = df_ad.loc[ad,"Ad"]
-        line_ad = df_ad.loc[ad:ad].reset_index(drop=True)
-        
-        #Construction du dataframe contenant tous les vorinschk de cet aérodrome
-        df_vorinschk_ad = df_vorinschk.query("Ad == @nom_ad")
-        #Construction du dataframe contenant tous les runway de cet aérodrome
-        df_rwy_ad = df_rwy.query("Ad == @nom_ad")
-        
-        if df_vorinschk_ad.shape[0] != 0:
-            for vorinschk in df_vorinschk_ad.index:
-                line_vorinschk = df_vorinschk_ad.loc[vorinschk:vorinschk].reset_index(drop=True).drop(columns="Ad")
-                
-                #On construit la ligne associé à ce vorinschk
-                type_df = pd.DataFrame({"Type": ["VorInsChk"]})
-                line = pd.concat([type_df,line_ad,line_vorinschk], axis=1)
-                data_vorinschk = pd.concat([data_vorinschk, line], ignore_index=True)
-                
-        if df_rwy_ad.shape[0] != 0:
-        
-            #Pour chaque runway on stoque ses infos et on garde son identifiant
-            for rwy in df_rwy_ad.index:
-           
-                nom_rwy = df_rwy_ad.loc[rwy,"Rwy"]
-                line_rwy = df_rwy_ad.loc[rwy:rwy].reset_index(drop=True).drop(columns="Ad")
-                
-                #Construction des dataframe issus de cette runway
-                df_ils_rwy = df_ils.query("Rwy == @nom_rwy")
-                df_rwylgt_rwy = df_rwylgt.query("Rwy == @nom_rwy")
-                df_twydecdist_rwy = df_twydecdist.query("Rwy == @nom_rwy")
-                
-                if df_rwylgt_rwy.shape[0] != 0:
-                    for rwylgt in df_rwylgt_rwy.index:
-                        line_rwylgt = df_rwylgt_rwy.loc[rwylgt:rwylgt].reset_index(drop=True).drop(columns="Rwy")
-                        
-                        #On construit la ligne associé à ce vorinschk
-                        type_df = pd.DataFrame({"Type": ["RwyLgt"]})
-                        line = pd.concat([type_df,line_ad,line_rwy,line_rwylgt], axis=1)
-                        data_rwylgt = pd.concat([data_rwylgt, line], ignore_index=True)
-                        
-                if df_twydecdist_rwy.shape[0] != 0:
-                    for twydecdist in df_twydecdist_rwy.index:
-                        line_twydecdist = df_twydecdist_rwy.loc[twydecdist:twydecdist].reset_index(drop=True).drop(columns="Rwy")
-                        
-                        #On construit la ligne associé à ce vorinschk
-                        type_df = pd.DataFrame({"Type": ["TwyDecDist"]})
-                        line = pd.concat([type_df,line_ad,line_rwy,line_twydecdist], axis=1)
-                        data_twydecdist = pd.concat([data_twydecdist, line], ignore_index=True)
-                        
-                if df_ils_rwy.shape[0] != 0:
-                    for ils in df_ils_rwy.index:
-                   
-                        nom_ils = df_ils_rwy.loc[ils,"Ils"]
-                        line_ils = df_ils_rwy.loc[ils:ils].reset_index(drop=True).drop(columns="Rwy")
-                        
-                        #Construction des dataframe issus de cet ils
-                        df_dmeils_ils = df_dmeils.query("Ils == @nom_ils")
-                        df_gp_ils = df_gp.query("Ils == @nom_ils")
-                        df_mkr_ils = df_mkr.query("Ils == @nom_ils")
-                        
-                        if df_dmeils_ils.shape[0] != 0:
-                            for dmeils in df_dmeils_ils.index:
-                                line_dmeils = df_dmeils_ils.loc[dmeils:dmeils].reset_index(drop=True).drop(columns="Ils")
-                                
-                                #On construit la ligne associé à ce dmeils
-                                type_df = pd.DataFrame({"Type": ["DmeIls"]})
-                                line = pd.concat([type_df,line_ad,line_rwy,line_ils,line_dmeils], axis=1)
-                                data_dmeils = pd.concat([data_dmeils, line], ignore_index=True)
-                                
-                        if df_gp_ils.shape[0] != 0:
-                            for gp in df_gp_ils.index:
-                                line_gp = df_gp_ils.loc[gp:gp].reset_index(drop=True).drop(columns="Ils")
-                                
-                                #On construit la ligne associé à ce dmeils
-                                type_df = pd.DataFrame({"Type": ["Gp"]})
-                                line = pd.concat([type_df,line_ad,line_rwy,line_ils,line_gp], axis=1)
-                                data_gp = pd.concat([data_gp, line], ignore_index=True)
-                                
-                        if df_mkr_ils.shape[0] != 0:
-                            for mkr in df_mkr_ils.index:
-                                line_mkr = df_mkr_ils.loc[mkr:mkr].reset_index(drop=True).drop(columns="Ils")
-                                
-                                #On construit la ligne associé à ce dmeils
-                                type_df = pd.DataFrame({"Type": ["Mkr"]})
-                                line = pd.concat([type_df,line_ad,line_rwy,line_ils,line_mkr], axis=1)
-                                data_mkr = pd.concat([data_mkr, line], ignore_index=True)
-                         
-                        # Cas où l'Ils n'a ni dmeils, ni gp, ni mkr
-                        if df_dmeils_ils.shape[0] == 0 and df_gp_ils.shape[0] == 0 and df_mkr_ils.shape[0] == 0:
-                            #On construit la ligne associé à ce ils
-                            type_df = pd.DataFrame({"Type": ["Ils"]})
-                            line = pd.concat([type_df,line_ad,line_rwy,line_ils], axis=1)
-                            data_ils = pd.concat([data_ils, line], ignore_index=True)
-                            
-                # Cas où la piste n'a ni Ils, ni RwyLgt, ni TwyDecDist
-                if df_rwylgt_rwy.shape[0] == 0 and df_twydecdist_rwy.shape[0] == 0 and df_ils_rwy.shape[0] == 0:
-                    #On construit la ligne associé à ce vorinschk
-                    type_df = pd.DataFrame({"Type": ["Rwy"]})
-                    line = pd.concat([type_df,line_ad,line_rwy], axis=1)
-                    data_rwy = pd.concat([data_rwy, line], ignore_index=True)
-                
-            # Cas où l'aérodrome n'a ni Rwy, ni VorInsChk
-            if df_vorinschk_ad.shape[0] == 0 and df_rwy_ad.shape[0] == 0:
-                #On construit la ligne associé à ce ad
-                type_df = pd.DataFrame({"Type": ["Ad"]})
-                line = pd.concat([type_df,line_ad], axis=1)
-                data_ad = pd.concat([data_ad, line], ignore_index=True)
-                
-    data_ad = data_ad.reset_index(drop=True)
-    data_vorinschk = data_vorinschk.reset_index(drop=True)
-    data_rwy = data_rwy.reset_index(drop=True)
-    data_rwylgt = data_rwylgt.reset_index(drop=True)
-    data_twydecdist = data_twydecdist.reset_index(drop=True)
-    data_ils = data_ils.reset_index(drop=True)
-    data_dmeils = data_dmeils.reset_index(drop=True)
-    data_gp = data_gp.reset_index(drop=True)
-    data_mkr = data_mkr.reset_index(drop=True)
-        
-    # data = pd.concat([data_ad, data_vorinschk],ignore_index=True)
-    # data = pd.concat([data_ad, data_vorinschk, data_rwy, data_rwylgt, data_twydecdist, data_ils, data_dmeils, data_gp, data_mkr], ignore_index=True)
-    # return data
-    return data_ad, data_vorinschk, data_rwy, data_rwylgt, data_twydecdist, data_ils, data_dmeils, data_gp, data_mkr
-
-
-
 def construct_BDDG(root):
     
     df_bddg_espace = construct_BDDG_espaces(root)
@@ -312,60 +162,48 @@ if __name__ == "__main__":
     ### ------------------------    Parsing with ETREE    ------------------------ ###
     
     # pass the path of the xml document 
-    path = 'Donnees SIA/export_xml_bd_sia_2023-10-05-s2/'
-    tree_SIA_10 = ET.parse(str(path)+'XML_SIA_2023-10-05.xml')
-    tree_donees_test = ET.parse('donnees_test_v2.xml')
+    path_10 = 'Donnees SIA/export_xml_bd_sia_2023-10-05-s2/'
+    path_11 = 'Donnees SIA/export_xml_bd_sia_2023-11-02-c1/'
+    path_01 = 'Donnees SIA/export_xml_bd_sia_2024-01-25-u6/'
+    path_02 = 'Donnees SIA/export_xml_bd_sia_2024-02-22-h9/'
+    
+    # parsing
+    tree_SIA_10 = ET.parse(str(path_10)+'XML_SIA_2023-10-05.xml')
+    tree_SIA_11 = ET.parse(str(path_11)+'XML_SIA_2023-11-02.xml')
+    tree_SIA_01 = ET.parse(str(path_01)+'XML_SIA_2024-01-25.xml')
+    tree_SIA_02 = ET.parse(str(path_02)+'XML_SIA_2024-02-22.xml')
 
     # get the parent tag
     root_SIA_10 = tree_SIA_10.getroot()
-    root_donees_test = tree_donees_test.getroot()
+    root_SIA_11 = tree_SIA_11.getroot()
+    root_SIA_01 = tree_SIA_01.getroot()
+    root_SIA_02 = tree_SIA_02.getroot()
     
-    # test fonctions
-    # df_espaces = get_classe(root_SIA_10,'EspaceS')
-    # df_espaces_test = get_classe(root_donees_test,'EspaceS')
-    
-    # df_parties_test = get_classe(root_donees_test,'PartieS')
-    # df_parties = get_classe(root_SIA_10,'PartieS')
-    
-    # df_volumes_test = get_classe(root_donees_test,'VolumeS')
-    # df_volumes = get_classe(root_SIA_10,'VolumeS')
-    
-    df_territoires_test = get_classe(root_donees_test,'TerritoireS')
-    df_territoires = get_classe(root_SIA_10,'TerritoireS')
-    
-    df_ad = get_classe(root_SIA_10,'AdS')
-    df_vorinschk = get_classe(root_SIA_10,'VorInsChkS')
-    df_rwy = get_classe(root_SIA_10,'RwyS')
-    df_ils = get_classe(root_SIA_10,'IlsS')
-    df_rwylgt = get_classe(root_SIA_10,'RwyLgtS')
-    df_twydecdist = get_classe(root_SIA_10,'TwyDecDistS')
-    df_dmeils = get_classe(root_SIA_10,'DmeIlsS')
-    df_gp = get_classe(root_SIA_10,'GpS')
-    df_mkr = get_classe(root_SIA_10,'MkrS')
-    
-    # BDDG_espaces_test = construct_BDDG_espaces(root_donees_test)
-    # BDDG_espaces = construct_BDDG_espaces(root_SIA_10)
-    
-    # BDDG_ad = construct_BDDG_ad(root_SIA_10)
-    data_ad, data_vorinschk, data_rwy, data_rwylgt, data_twydecdist, data_ils, data_dmeils, data_gp, data_mkr = construct_BDDG_ad(root_SIA_10)
-    
-    
-    # BDDG_test = construct_BDDG(root_donees_test)
-    # gdf = gpd.GeoDataFrame(BDDG_test,
-    #                        geometry=gpd.points_from_xy(BDDG_test.Longitude, BDDG_test.Latitude),
-    #                        crs="EPSG:4326")
-    # gdf = gpd.GeoDataFrame(BDDG_test,
-    #                        geometry=gpd.GeoSeries.from_wkt(BDDG_test.Longitude, BDDG_test.Latitude),
-    #                        crs="EPSG:4326")
-    BDDG = construct_BDDG(root_SIA_10)
-    # gdf = gpd.GeoDataFrame(BDDG,
-    #                        geometry=gpd.points_from_xy(BDDG.Longitude, BDDG.Latitude),
-    #                        crs="EPSG:4326")
-    # print(BDDG.Geometrie)
+    # construction de la bdd avec Espaces + NavFixs
+    BDDG_10 = construct_BDDG(root_SIA_10)
+    BDDG_11 = construct_BDDG(root_SIA_11)
+    BDDG_01 = construct_BDDG(root_SIA_01)
+    BDDG_02 = construct_BDDG(root_SIA_02)
 
-    BDDG["wkt"] = BDDG.Geometrie.apply(create_wkt_object_from_string)
-    gdf = gpd.GeoDataFrame(BDDG,
-                           geometry=gpd.GeoSeries.from_wkt(BDDG.wkt),
+    # ajout de la colonne wkt et conversion de pandas en geopandas
+    BDDG_10["wkt"] = BDDG_10.Geometrie.apply(create_wkt_object_from_string)
+    gdf_10 = gpd.GeoDataFrame(BDDG_10,
+                           geometry=gpd.GeoSeries.from_wkt(BDDG_10.wkt),
+                           crs="EPSG:4326")
+    
+    BDDG_11["wkt"] = BDDG_11.Geometrie.apply(create_wkt_object_from_string)
+    gdf_11 = gpd.GeoDataFrame(BDDG_11,
+                           geometry=gpd.GeoSeries.from_wkt(BDDG_11.wkt),
+                           crs="EPSG:4326")
+    
+    BDDG_01["wkt"] = BDDG_01.Geometrie.apply(create_wkt_object_from_string)
+    gdf_01 = gpd.GeoDataFrame(BDDG_01,
+                           geometry=gpd.GeoSeries.from_wkt(BDDG_01.wkt),
+                           crs="EPSG:4326")
+    
+    BDDG_02["wkt"] = BDDG_02.Geometrie.apply(create_wkt_object_from_string)
+    gdf_02 = gpd.GeoDataFrame(BDDG_02,
+                           geometry=gpd.GeoSeries.from_wkt(BDDG_02.wkt),
                            crs="EPSG:4326")
     
     # connexion postgres
@@ -390,14 +228,18 @@ if __name__ == "__main__":
     # Utiliser SQLAlchemy pour créer un moteur de base de données
     engine = create_engine(f"postgresql+psycopg2://{conn_params['user']}:{conn_params['password']}@{conn_params['host']}:{conn_params['port']}/{conn_params['database']}")
 
-
     # Convertir le DataFrame en table PostgreSQL
-    table_name = 'XML_SIA_2023-10-05'
-    # BDDG_test.to_sql(table_name, engine, if_exists='replace', index=False)
-
-    gdf.to_postgis(table_name, engine, if_exists='replace', index=True, index_label="pk")
+    table_name_10 = 'XML_SIA_2023_10_05'
+    gdf_10.to_postgis(table_name_10, engine, if_exists='replace', index=True, index_label="pk")
     
-    # BDDG.to_sql(table_name, engine, if_exists='replace', index=False)
+    table_name_11 = 'XML_SIA_2023_11_02'
+    gdf_11.to_postgis(table_name_11, engine, if_exists='replace', index=True, index_label="pk")
+    
+    table_name_01 = 'XML_SIA_2024_01_25'
+    gdf_01.to_postgis(table_name_01, engine, if_exists='replace', index=True, index_label="pk")
+    
+    table_name_02 = 'XML_SIA_2024_02_22'
+    gdf_02.to_postgis(table_name_02, engine, if_exists='replace', index=True, index_label="pk")
 
     # Fermer la connexion à la base de données
     conn.close()
