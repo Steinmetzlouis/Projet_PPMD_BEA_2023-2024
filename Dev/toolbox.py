@@ -10,6 +10,7 @@ Created on Sat Dec 16 15:18:45 2023
 import xml.etree.ElementTree as ET
 import pandas as pd
 import numpy as np
+import geopandas as gpd
 import psycopg2
 from sqlalchemy import create_engine
 #os.system(wget_request)
@@ -18,6 +19,53 @@ from sqlalchemy import create_engine
 
 
 ### ------------------------    Fonctions    ------------------------ ###
+
+class Point:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def __str__(self):
+        return f"POINT ({self.x} {self.y})"
+
+
+class LineString:
+    def __init__(self, points):
+        if len(points) < 2:
+            raise ValueError("Une LineString doit avoir au moins deux points.")
+        self.points = points
+
+    def __str__(self):
+        return "LINESTRING (" + ", ".join(f"{point.x} {point.y}" for point in self.points) + ")"
+
+
+class Polygon:
+    def __init__(self, points):
+        if len(points) < 3:
+            raise ValueError("Un polygone doit avoir au moins trois points.")
+        self.points = points
+
+    def __str__(self):
+        return "POLYGON ((" + ", ".join(f"{point.x} {point.y}" for point in self.points) + "))"
+
+
+def create_wkt_object_from_string(coord_string):
+    lines = coord_string.split('\n')
+    coords = []
+    for line in lines:
+        if line.strip():
+            coords.extend([float(coord) for coord in line.split(',')])
+
+    if len(coords) == 2:
+        return str(Point(coords[1], coords[0]))
+    elif len(coords) > 4 and len(coords) % 2 == 0 and coords[0] == coords[-2] and coords[1] == coords[-1]:
+        points = [Point(coords[i + 1], coords[i]) for i in range(0, len(coords), 2)]
+        return str(Polygon(points))
+    elif len(coords) >= 4 and len(coords) % 2 == 0:
+        return str(LineString([Point(coords[i + 1], coords[i]) for i in range(0, len(coords), 2)]))
+    else:
+        raise ValueError("La liste de coordonnées n'est pas valide pour former un objet WKT.")
+
 
 def get_classe(root, element):
     
@@ -299,19 +347,42 @@ if __name__ == "__main__":
     # BDDG_espaces = construct_BDDG_espaces(root_SIA_10)
     
     # BDDG_ad = construct_BDDG_ad(root_SIA_10)
-    data_ad, data_vorinschk, data_rwy, data_rwylgt, data_twydecdist, data_ils, data_dmeils, data_gp, data_mkr = construct_BDDG_ad(root_SIA_10)
+    # data_ad, data_vorinschk, data_rwy, data_rwylgt, data_twydecdist, data_ils, data_dmeils, data_gp, data_mkr = construct_BDDG_ad(root_SIA_10)
     
-    BDDG_test = construct_BDDG(root_donees_test)
-    # BDDG = construct_BDDG(root_SIA_10)
+    # BDDG_test = construct_BDDG(root_donees_test)
+    # gdf = gpd.GeoDataFrame(BDDG_test,
+    #                        geometry=gpd.points_from_xy(BDDG_test.Longitude, BDDG_test.Latitude),
+    #                        crs="EPSG:4326")
+    # gdf = gpd.GeoDataFrame(BDDG_test,
+    #                        geometry=gpd.GeoSeries.from_wkt(BDDG_test.Longitude, BDDG_test.Latitude),
+    #                        crs="EPSG:4326")
+    BDDG = construct_BDDG(root_SIA_10)
+    # gdf = gpd.GeoDataFrame(BDDG,
+    #                        geometry=gpd.points_from_xy(BDDG.Longitude, BDDG.Latitude),
+    #                        crs="EPSG:4326")
+    # print(BDDG.Geometrie)
+
+    BDDG["wkt"] = BDDG.Geometrie.apply(create_wkt_object_from_string)
+    gdf = gpd.GeoDataFrame(BDDG,
+                           geometry=gpd.GeoSeries.from_wkt(BDDG.wkt),
+                           crs="EPSG:4326")
     
     # connexion postgres
     conn_params = {
         'database' : "projet_BEA",
-        'user' : "postgres", 
+        'user' : "postgres",
         'host': "localhost",
         'password' : "proj_bea",
         'port' : 5432
     }
+
+    # conn_params = {
+    #     'database' : "projet_BEA",
+    #     'user': "jfv",
+    #     'host': "localhost",
+    #     'password': "",
+    #     'port': 5432
+    # }
     
     conn = psycopg2.connect(**conn_params)
 
@@ -322,9 +393,10 @@ if __name__ == "__main__":
     # Convertir le DataFrame en table PostgreSQL
     table_name = 'XML_SIA_2023-10-05'
     # BDDG_test.to_sql(table_name, engine, if_exists='replace', index=False)
+
+    gdf.to_postgis(table_name, engine, if_exists='replace', index=False)
+    
     # BDDG.to_sql(table_name, engine, if_exists='replace', index=False)
 
     # Fermer la connexion à la base de données
     conn.close()
-    
-    
