@@ -398,7 +398,7 @@ if __name__ == "__main__":
     table_name = 'XML_SIA_2023-10-05'
     # BDDG_test.to_sql(table_name, engine, if_exists='replace', index=False)
 
-    gdf.to_postgis(table_name, engine, if_exists='replace', index=False)
+    gdf.to_postgis(table_name, engine, if_exists='replace', index=True, index_label="pk")
     
     # BDDG.to_sql(table_name, engine, if_exists='replace', index=False)
 
