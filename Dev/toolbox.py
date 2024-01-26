@@ -283,6 +283,73 @@ def construct_BDD(root):
     return data
 
 
+def create_database(path, filename, conn_params):
+    """
+    Crée une base de données PostgreSQL à partir d'un fichier XML contenant des données géospatiales.
+
+    Parameters:
+    - path (str): Le chemin vers le répertoire du fichier XML.
+    - filename (str): Le nom du fichier XML contenant les données géospatiales.
+    - conn_params (dict): Les paramètres de connexion à la base de données PostgreSQL, sous la forme d'un dictionnaire
+                         avec les clés 'host', 'port', 'user', 'password', et 'database'.
+
+    Returns:
+    None
+
+    Steps:
+    1. Parses le fichier XML spécifié.
+    2. Construit la base de données à partir des éléments du fichier XML.
+    3. Ajoute une colonne 'wkt' à la base de données en utilisant la fonction create_wkt_object_from_string.
+    4. Convertit la base de données en un GeoDataFrame avec GeoPandas.
+    5. Établit une connexion PostgreSQL en utilisant les paramètres spécifiés.
+    6. Utilise SQLAlchemy pour créer un moteur de base de données.
+    7. Renomme la table en remplaçant les tirets par des underscores dans le nom du fichier.
+    8. Convertit le GeoDataFrame en une table PostgreSQL dans la base de données.
+    9. Ferme la connexion à la base de données.
+
+    Note:
+    - La fonction utilise les bibliothèques ElementTree, GeoPandas, psycopg2, et SQLAlchemy.
+    """
+    
+    # parsing
+    tree_xml = ET.parse(str(path)+str(filename))
+    
+    # get the parent tag
+    root_xml = tree_xml.getroot()
+    
+    # construction de la bdd avec Espaces + NavFixs
+    BDD = construct_BDD(root_xml)
+    
+    # ajout de la colonne wkt et conversion de pandas en geopandas
+    BDD["wkt"] = BDD.Geometrie.apply(create_wkt_object_from_string)
+    gdf = gpd.GeoDataFrame(BDD,
+                           geometry=gpd.GeoSeries.from_wkt(BDD.wkt),
+                           crs="EPSG:4326")
+    
+    # connexion postgres
+    conn = psycopg2.connect(**conn_params)
+    
+    # utiliser SQLAlchemy pour créer un moteur de base de données
+    engine = create_engine(f"postgresql+psycopg2://{conn_params['user']}:{conn_params['password']}@{conn_params['host']}:{conn_params['port']}/{conn_params['database']}")
+
+    # nomer la table en remplaçant les "-" par "_"
+    table_name = ""
+    for car in filename:
+        if car == '-':
+            table_name += "_"
+        else:
+            table_name += car
+    table_name = table_name[:-4]
+    
+    # convertir le DataFrame en table PostgreSQL
+    gdf.to_postgis(table_name, engine, if_exists='replace', index=True, index_label="pk")
+
+    # fermer la connexion à la base de données
+    conn.close()
+    
+    return
+
+
 
 ### ------------------------    Main    ------------------------ ###
 
@@ -296,44 +363,11 @@ if __name__ == "__main__":
     path_01 = 'Donnees SIA/export_xml_bd_sia_2024-01-25-u6/'
     path_02 = 'Donnees SIA/export_xml_bd_sia_2024-02-22-h9/'
     
-    # parsing
-    tree_SIA_10 = ET.parse(str(path_10)+'XML_SIA_2023-10-05.xml')
-    tree_SIA_11 = ET.parse(str(path_11)+'XML_SIA_2023-11-02.xml')
-    tree_SIA_01 = ET.parse(str(path_01)+'XML_SIA_2024-01-25.xml')
-    tree_SIA_02 = ET.parse(str(path_02)+'XML_SIA_2024-02-22.xml')
-
-    # get the parent tag
-    root_SIA_10 = tree_SIA_10.getroot()
-    root_SIA_11 = tree_SIA_11.getroot()
-    root_SIA_01 = tree_SIA_01.getroot()
-    root_SIA_02 = tree_SIA_02.getroot()
-    
-    # construction de la bdd avec Espaces + NavFixs
-    BDDG_10 = construct_BDD(root_SIA_10)
-    BDDG_11 = construct_BDD(root_SIA_11)
-    BDDG_01 = construct_BDD(root_SIA_01)
-    BDDG_02 = construct_BDD(root_SIA_02)
-
-    # ajout de la colonne wkt et conversion de pandas en geopandas
-    BDDG_10["wkt"] = BDDG_10.Geometrie.apply(create_wkt_object_from_string)
-    gdf_10 = gpd.GeoDataFrame(BDDG_10,
-                           geometry=gpd.GeoSeries.from_wkt(BDDG_10.wkt),
-                           crs="EPSG:4326")
-    
-    BDDG_11["wkt"] = BDDG_11.Geometrie.apply(create_wkt_object_from_string)
-    gdf_11 = gpd.GeoDataFrame(BDDG_11,
-                           geometry=gpd.GeoSeries.from_wkt(BDDG_11.wkt),
-                           crs="EPSG:4326")
-    
-    BDDG_01["wkt"] = BDDG_01.Geometrie.apply(create_wkt_object_from_string)
-    gdf_01 = gpd.GeoDataFrame(BDDG_01,
-                           geometry=gpd.GeoSeries.from_wkt(BDDG_01.wkt),
-                           crs="EPSG:4326")
-    
-    BDDG_02["wkt"] = BDDG_02.Geometrie.apply(create_wkt_object_from_string)
-    gdf_02 = gpd.GeoDataFrame(BDDG_02,
-                           geometry=gpd.GeoSeries.from_wkt(BDDG_02.wkt),
-                           crs="EPSG:4326")
+    # pass the filename of the xml document 
+    file_10 = 'XML_SIA_2023-10-05.xml'
+    file_11 = 'XML_SIA_2023-11-02.xml'
+    file_01 = 'XML_SIA_2024-01-25.xml'
+    file_02 = 'XML_SIA_2024-02-22.xml'
     
     # connexion postgres
     conn_params = {
@@ -352,23 +386,8 @@ if __name__ == "__main__":
     #     'port': 5432
     # }
     
-    conn = psycopg2.connect(**conn_params)
-
-    # Utiliser SQLAlchemy pour créer un moteur de base de données
-    engine = create_engine(f"postgresql+psycopg2://{conn_params['user']}:{conn_params['password']}@{conn_params['host']}:{conn_params['port']}/{conn_params['database']}")
-
-    # Convertir le DataFrame en table PostgreSQL
-    table_name_10 = 'XML_SIA_2023_10_05'
-    gdf_10.to_postgis(table_name_10, engine, if_exists='replace', index=True, index_label="pk")
-    
-    table_name_11 = 'XML_SIA_2023_11_02'
-    gdf_11.to_postgis(table_name_11, engine, if_exists='replace', index=True, index_label="pk")
-    
-    table_name_01 = 'XML_SIA_2024_01_25'
-    gdf_01.to_postgis(table_name_01, engine, if_exists='replace', index=True, index_label="pk")
-    
-    table_name_02 = 'XML_SIA_2024_02_22'
-    gdf_02.to_postgis(table_name_02, engine, if_exists='replace', index=True, index_label="pk")
-
-    # Fermer la connexion à la base de données
-    conn.close()
+    # execution de la pipeline
+    create_database(path_10, file_10, conn_params)
+    create_database(path_11, file_11, conn_params)
+    create_database(path_01, file_01, conn_params)
+    create_database(path_02, file_02, conn_params)
