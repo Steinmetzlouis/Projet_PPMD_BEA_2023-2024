@@ -13,8 +13,6 @@ import numpy as np
 import geopandas as gpd
 import psycopg2
 from sqlalchemy import create_engine
-#os.system(wget_request)
-# wget_request = 'wget --user={} --password={} --load-cookies {}  --save-cookies {}  --auth-no-challenge=on --keep-session-cookies -P {} --content-disposition  {}'
 
 
 
