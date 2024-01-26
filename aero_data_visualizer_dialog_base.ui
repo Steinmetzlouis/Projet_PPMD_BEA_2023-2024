@@ -21,7 +21,7 @@
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
-       <string>Tab 1</string>
+       <string>Filtres</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_4">
        <item row="0" column="1">
@@ -102,31 +102,23 @@
      </widget>
      <widget class="QWidget" name="tab_2">
       <attribute name="title">
-       <string>Tab 2</string>
+       <string>Sélection des données</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_5">
-       <item row="1" column="0">
+       <item row="0" column="0">
+        <widget class="QTableView" name="tableView"/>
+       </item>
+       <item row="1" column="0" alignment="Qt::AlignHCenter">
         <widget class="QPushButton" name="pushButton_2">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="text">
           <string>Visualiser</string>
          </property>
-        </widget>
-       </item>
-       <item row="0" column="0">
-        <widget class="QScrollArea" name="scrollArea">
-         <property name="widgetResizable">
-          <bool>true</bool>
-         </property>
-         <widget class="QWidget" name="scrollAreaWidgetContents">
-          <property name="geometry">
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>480</width>
-            <height>225</height>
-           </rect>
-          </property>
-         </widget>
         </widget>
        </item>
       </layout>

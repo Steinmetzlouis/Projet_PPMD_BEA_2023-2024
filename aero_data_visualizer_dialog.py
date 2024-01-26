@@ -113,11 +113,14 @@ class AeroDataVisualizerDialog(QtWidgets.QDialog, FORM_CLASS):
         super(AeroDataVisualizerDialog, self).__init__(parent)
         self.iface = iface
         self.setupUi(self)
+        self.setWindowFlags(Qt.Window)
 
         print("Bienvenue dans le bien nommé plugin AeroDataVisualizer ! ")
 
         # self.mapCanvas.hide()
         self.rubberband = None
+        self.mapTool = None
+        self.extent = None
 
         # Pour trouver le QTabWidget 
         tab_widget = self.findChild(QtWidgets.QTabWidget, 'tabWidget')
@@ -144,8 +147,8 @@ class AeroDataVisualizerDialog(QtWidgets.QDialog, FORM_CLASS):
                 print("Bouton 'Saisir emprise' trouvé")
                 coverageButton.clicked.connect(self.on_saisir_emprise_clicked)
 
-    def handle_extent_selected(self, maptool):
-        extent = maptool.extent()
+    def handle_extent_selected(self):
+        extent = self.mapTool.extent()
 
         # Définir le système de référence source (le CRS actuel de la carte)
         source_crs = self.iface.mapCanvas().mapSettings().destinationCrs()
@@ -168,7 +171,7 @@ class AeroDataVisualizerDialog(QtWidgets.QDialog, FORM_CLASS):
         print("Emprise sélectionnée (WGS84):", extent_wgs84_str)
         self.empriseLabel.setText(f'Emprise définie : {extent_wgs84_str}')
 
-        maptool.clearRubberBand()
+        self.mapTool.clearRubberBand()
 
         self.mapCanvas.setLayers(self.iface.mapCanvas().layers())
         self.mapCanvas.setExtent(extent)
@@ -181,35 +184,36 @@ class AeroDataVisualizerDialog(QtWidgets.QDialog, FORM_CLASS):
         self.mapCanvas.refreshAllLayers()
         self.mapCanvas.show()
 
+        self.showNormal()
+
         self.raise_()
         self.activateWindow()
 
     def on_valider_clicked(self):
+        # self.mapTool.deactivate()
+        self.iface.mapCanvas().unsetMapTool(self.mapTool)
         
         print('clic valider')
 
-        # On cherche l'objet QDateEdit
-        surveyDate = self.findChild(QtWidgets.QDateEdit, 'surveyDate')
-
-        if surveyDate:
+        if self.surveyDate:
             # On récupère la valeur de la date saisie
-            date_value = surveyDate.date().toString("yyyy-MM-dd")
+            date_value = self.surveyDate.date().toString("yyyy-MM-dd")
             print("Date saisie :", date_value)
         else:
             print("Objet QDateEdit non trouvé.")
         
-        tab_widget = self.findChild(QtWidgets.QTabWidget, 'tabWidget')
-        tab_widget.setCurrentIndex(1)
+        self.tabWidget.setCurrentIndex(1)
 
     def on_saisir_emprise_clicked(self):
+        self.showMinimized()
 
         # select_extent_tool = MapToolSelectExtent(self.iface.mapCanvas(), self.handle_extent_selected)
         # self.iface.mapCanvas().setMapTool(select_extent_tool)
 
         canvas = self.iface.mapCanvas()
-        t = QgsMapToolExtent(canvas)
-        t.extentChanged.connect(lambda: self.handle_extent_selected(t))
-        canvas.setMapTool(t)
+        self.mapTool = QgsMapToolExtent(canvas)
+        self.mapTool.extentChanged.connect(self.handle_extent_selected)
+        canvas.setMapTool(self.mapTool)
 
         # print('clic saisir emprise')
         #
