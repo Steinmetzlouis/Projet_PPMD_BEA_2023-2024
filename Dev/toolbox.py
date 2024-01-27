@@ -259,10 +259,10 @@ def construct_BDD(root):
 
     La fonction utilise la fonction construct_BDD_espaces pour extraire les informations spécifiques aux espaces de la
     structure XML. Ensuite, elle utilise la fonction get_classe pour extraire les informations relatives aux points de
-    navigation ('NavFixS').
+    navigation ('NavFixS') et les obstacles.
 
     Les données relatives aux points de navigation sont marquées avec un type 'NavFix' dans la colonne 'Type' du DataFrame
-    correspondant.
+    correspondant et obstacles par un type 'Obstacle'.
 
     Enfin, les DataFrames extraits sont concaténés et une colonne 'lk' est ajoutée en utilisant la fonction ajout_lk.
 
@@ -272,11 +272,14 @@ def construct_BDD(root):
     
     df_bdd_espace = construct_BDD_espaces(root)
     df_navfixs = get_classe(root,'NavFixS')
+    df_obstacles = get_classe(root,'ObstacleS')
     
     for navfix in df_navfixs.index:
         df_navfixs.loc[navfix,"Type"] = "NavFix"
+    for obs in df_obstacles.index:
+        df_obstacles.loc[obs,"Type"] = "Obstacle"
     
-    data = pd.concat([df_bdd_espace, df_navfixs], ignore_index=True)
+    data = pd.concat([df_bdd_espace, df_navfixs, df_obstacles], ignore_index=True)
     data = data.astype(str)
     data = ajout_lk(data)
     
