@@ -38,6 +38,14 @@ from PyQt5.QtCore import Qt
 import json
 from qgis.core import QgsVectorLayer, QgsDataSourceUri, QgsProject, QgsWkbTypes
 
+#dates
+from datetime import datetime
+from qgis.core import QgsDataSourceUri, QgsProject
+
+import psycopg2
+from .mytoolbox import nearest_table_date
+
+
 # This loads your .ui file so that PyQt can populate your plugin with the elements from Qt Designer
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'aero_data_visualizer_dialog_base.ui'))
@@ -88,6 +96,8 @@ class AeroDataVisualizerDialog(QtWidgets.QDialog, FORM_CLASS):
                 print("Bouton 'Saisir emprise' trouvé")
                 coverageButton.clicked.connect(self.on_saisir_emprise_clicked)
 
+
+
     def handle_extent_selected(self):
         
         #étendue
@@ -134,6 +144,8 @@ class AeroDataVisualizerDialog(QtWidgets.QDialog, FORM_CLASS):
         self.raise_()
         self.activateWindow()
 
+
+
     def on_valider_clicked(self):
 
         self.iface.mapCanvas().unsetMapTool(self.mapTool)
@@ -141,7 +153,8 @@ class AeroDataVisualizerDialog(QtWidgets.QDialog, FORM_CLASS):
         if self.surveyDate:
             # On récupère la valeur de la date saisie
             self.date_value = self.surveyDate.date().toString("yyyy-MM-dd")
-            print(self.date_value)
+
+
         else:
             print("Objet QDateEdit non trouvé.")
 
@@ -152,7 +165,61 @@ class AeroDataVisualizerDialog(QtWidgets.QDialog, FORM_CLASS):
             rect = self.extent_wgs84
             xmin, ymin, xmax, ymax = rect.xMinimum(), rect.yMinimum(), rect.xMaximum(), rect.yMaximum()
 
-            print("xmin",xmin)
+            # Chemin vers le fichier contenant les informations de connexion
+            path = "/Users/louis/AppData/Roaming/QGIS/QGIS3/profiles/default/python/plugins/Projet_PPMD_BEA_2023-2024/id.json"
+
+            if self.extent_wgs84 is not None:
+                
+                rect = self.extent_wgs84
+                xmin, ymin, xmax, ymax = rect.xMinimum(), rect.yMinimum(), rect.xMaximum(), rect.yMaximum()
+
+                conn_params = {
+                    'database': "projet_BEA",
+                    'user': "postgres",
+                    'host': "localhost",
+                    'password': "postgres",
+                    'port': 5432
+                }
+
+                conn = psycopg2.connect(**conn_params)
+                cursor = conn.cursor()
+
+                # Sélectionnez les noms des tables qui commencent par "XML_SIA_"
+                cursor.execute("""
+                    SELECT table_name 
+                    FROM information_schema.tables 
+                    WHERE table_schema = 'public' 
+                    AND table_name LIKE 'XML_SIA_%'
+                """)
+
+                # Récupérer les résultats de la requête
+                tables = [table[0] for table in cursor.fetchall()]
+                print("Tables commençant par XML_SIA_: ", tables)
+
+                dates_formatted = []
+
+                for table in tables:
+                    # Extraire la partie de la date du nom de la table
+                    date_part = table.replace("XML_SIA_", "")  # Supprimer le préfixe
+                    # Convertir la partie de la date en objet datetime
+                    try:
+                        date_obj = datetime.strptime(date_part, "%Y_%m_%d")
+                        # Formater la date au format "aaaa-mm-jj"
+                        formatted_date = date_obj.strftime("%Y-%m-%d")
+                        # Ajouter la date formatée à la liste dates_formatted
+                        dates_formatted.append(formatted_date)
+                    except ValueError:
+                        print(f"Impossible de convertir la date dans le nom de la table : {table}")
+
+                print("Dates formatées : ", dates_formatted)
+
+                user_date = nearest_table_date(self.date_value,dates_formatted)
+                print(user_date)
+
+                #la on met le code qui fait la checklist avec tous les lk 
+
+
+
 
         else :
 
@@ -171,6 +238,9 @@ class AeroDataVisualizerDialog(QtWidgets.QDialog, FORM_CLASS):
         self.mapTool = QgsMapToolExtent(canvas)
         self.mapTool.extentChanged.connect(self.handle_extent_selected)
         canvas.setMapTool(self.mapTool)
+
+
+    
 
 
     
