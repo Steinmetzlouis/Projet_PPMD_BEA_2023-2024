@@ -102,6 +102,9 @@ class AeroDataVisualizerDialog(QtWidgets.QDialog, FORM_CLASS):
 
                 print("Bouton 'Saisir emprise' trouvé")
                 coverageButton.clicked.connect(self.on_saisir_emprise_clicked)
+            
+
+
 
 
 
@@ -268,6 +271,10 @@ class AeroDataVisualizerDialog(QtWidgets.QDialog, FORM_CLASS):
                 self.visualizeButton = QPushButton("Visualiser",self)
                 self.gridLayout_snd_tab.addWidget(self.visualizeButton, 2, 0)
 
+                self.visualizeButton.clicked.connect(self.on_visualiser_clicked)
+
+
+
                 self.old_tablewidget.hide()
 
 
@@ -286,6 +293,24 @@ class AeroDataVisualizerDialog(QtWidgets.QDialog, FORM_CLASS):
             print('non')
         
         self.tabWidget.setCurrentIndex(1)
+
+    def on_visualiser_clicked(self):
+
+        print("moooolllaaaa")
+
+        liste = self.get_fields()
+
+        print(liste)
+
+
+    def get_fields(self):
+        fields = []
+        for row in range(self.new_tablewidget.rowCount()):
+            item = self.new_tablewidget.item(row, 0)
+            if item.checkState() == Qt.Checked:
+                fields.append(self.new_tablewidget.item(row, 1).text())
+        return fields
+
 
     def on_saisir_emprise_clicked(self):
         
