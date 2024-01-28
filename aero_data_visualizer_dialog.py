@@ -27,6 +27,7 @@ import os
 from qgis.PyQt import uic
 from qgis.PyQt import QtWidgets
 from qgis.core import QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsProject, QgsWkbTypes, QgsGeometry
+from qgis.PyQt.QtWidgets import QWidget, QTableWidget, QTableWidgetItem, QHeaderView, QVBoxLayout, QHBoxLayout, QPushButton, QGridLayout
 
 # Librairie saisie d'emprise (TRI A FAIRE!)
 from qgis.core import QgsRectangle
@@ -71,15 +72,21 @@ class AeroDataVisualizerDialog(QtWidgets.QDialog, FORM_CLASS):
         self.extent_wgs84 = None
         self.date_value = None
 
-        # Pour trouver le QTabWidget 
-        tab_widget = self.findChild(QtWidgets.QTabWidget, 'tabWidget')
+        self.fields = None
 
-        if tab_widget:
+        # Pour trouver le QTabWidget 
+        self.gridLayout_snd_tab = self.findChild(QGridLayout, "gridLayout_5")
+        self.tab_widget = self.findChild(QtWidgets.QTabWidget, 'tabWidget')
+        self.first_tab = self.tab_widget.widget(0)
+        self.snd_tab = self.tab_widget.widget(1)
+
+        self.old_tablewidget = self.findChild(QtWidgets.QTableView, 'tableView')
+        self.new_tablewidget = None
+        self.visualizeButton = None
+
+        if self.tab_widget:
             
             print("TabWidget trouvé")
-
-            # Pour trouver le premier onglet du TabWidget
-            first_tab = tab_widget.widget(0)
             
 
             confirmButton = self.findChild(QtWidgets.QPushButton, 'confirmButton')
@@ -217,6 +224,55 @@ class AeroDataVisualizerDialog(QtWidgets.QDialog, FORM_CLASS):
                 print(user_date)
 
                 #la on met le code qui fait la checklist avec tous les lk 
+                
+                #enveloppe pour la requete spatiale
+                geom_bound = f'ST_MakeEnvelope({xmin}, {ymin}, {xmax}, {ymax}, 4326)'
+                geom_col = "geometry"
+
+                # Configuration du code de Louis
+                schema = "public"  # imposé par le code de Louis
+
+                # Construction de la requête SQL avec la date dynamique
+                # sql = f'SELECT * FROM {schema}.{table} WHERE ST_Within({geom_col}, {geom_bound})'
+                #sql_query = f"""SELECT lk FROM {schema}.XML_SIA_{user_date.replace('-', '_')}"""
+                sql_query = f"""SELECT lk FROM {schema}."XML_SIA_{user_date.replace('-', '_')}" WHERE ST_Within({geom_col}, {geom_bound})"""
+
+                # Exécutez la requête SQL et récupérez les noms de colonne "lk"
+                cursor.execute(sql_query)
+
+                # Récupérez tous les résultats de la requête
+                lk_names = cursor.fetchall()
+
+                fields = []
+                # Affichez les noms de colonne "lk"
+                for name in lk_names:
+                    fields.append(name[0])
+                
+                self.fields = fields
+
+                self.new_tablewidget = QTableWidget(len(self.fields), 2, self)
+                self.new_tablewidget.horizontalHeader().setStretchLastSection(True)
+                self.new_tablewidget.setHorizontalHeaderLabels(["", "Nom attribut"])
+                for i, field_name in enumerate(self.fields):
+                    item = QTableWidgetItem()
+                    item.setFlags(Qt.ItemIsUserCheckable | Qt.ItemIsEnabled)
+                    item.setCheckState(Qt.Unchecked)
+                    self.new_tablewidget.setItem(i, 0, item)
+                    self.new_tablewidget.setItem(i, 1, QTableWidgetItem(field_name))
+
+                header = self.new_tablewidget.horizontalHeader()
+                header.setSectionResizeMode(0, QHeaderView.ResizeToContents)
+                header.setSectionResizeMode(1, QHeaderView.Stretch)
+                self.new_tablewidget.setSizePolicy(self.old_tablewidget.sizePolicy())
+                self.gridLayout_snd_tab.addWidget(self.new_tablewidget, 1, 0) # ici 1, 0 signifie que l'élément à remplacer est à la 2e ligne et 1ère colonne de la grille
+                
+                self.old_tablewidget.hide()
+
+
+
+
+
+                
 
 
 
