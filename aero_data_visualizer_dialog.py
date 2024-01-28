@@ -28,6 +28,7 @@ from qgis.PyQt import uic
 from qgis.PyQt import QtWidgets
 from qgis.core import QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsProject, QgsWkbTypes, QgsGeometry
 from qgis.PyQt.QtWidgets import QWidget, QTableWidget, QTableWidgetItem, QHeaderView, QVBoxLayout, QHBoxLayout, QPushButton, QGridLayout
+from qgis.core import QgsVectorLayer, QgsDataSourceUri, QgsProject, QgsWkbTypes
 
 # Librairie saisie d'emprise (TRI A FAIRE!)
 from qgis.core import QgsRectangle
@@ -71,6 +72,7 @@ class AeroDataVisualizerDialog(QtWidgets.QDialog, FORM_CLASS):
         self.extent = None
         self.extent_wgs84 = None
         self.date_value = None
+        self.user_date = None
 
         self.fields = None
 
@@ -224,7 +226,7 @@ class AeroDataVisualizerDialog(QtWidgets.QDialog, FORM_CLASS):
                 print("Dates formatées : ", dates_formatted)
 
                 user_date = nearest_table_date(self.date_value,dates_formatted)
-                print(user_date)
+                self.user_date = user_date
 
                 #la on met le code qui fait la checklist avec tous les lk 
                 
@@ -298,9 +300,41 @@ class AeroDataVisualizerDialog(QtWidgets.QDialog, FORM_CLASS):
 
         print("moooolllaaaa")
 
+        schema = "public"  # imposé par le code de Louis
+
         liste = self.get_fields()
 
-        print(liste)
+        table = f"XML_SIA_{self.user_date.replace('-', '_')}"
+
+        geom_col = "geometry"  # imposé par le code de Louis
+        
+        geometries = [QgsWkbTypes.Point, QgsWkbTypes.LineString, QgsWkbTypes.Polygon]
+
+        where_sql = f'lk IN {tuple(liste)}'
+
+        path = "/Users/louis/AppData/Roaming/QGIS/QGIS3/profiles/default/python/plugins/Projet_PPMD_BEA_2023-2024/id.json"
+        
+        with open(path) as file:
+            conn = json.load(file)
+            groupName = table
+            # Création d'un groupe de couche nommé "XML_SIA_AAAA-MM-JJ"
+            root = QgsProject.instance().layerTreeRoot()
+            group = root.insertGroup(0, groupName)
+
+            for geom in geometries:
+
+                uri = QgsDataSourceUri()
+                uri.setConnection(conn["host"], conn["port"], conn["database"], conn["user"], conn["password"])
+                #uri.setParam("checkPrimaryKeyUnicity", "0")
+                uri.setSrid("4326")
+                uri.setWkbType(geom)
+                # uri.setDataSource('', f'({sql})', geom_col, aSql='', aKeyColumn='tid')
+                uri.setDataSource(schema, table, geom_col, aKeyColumn='pk', aSql=where_sql)
+                # Le nom de la couche sera : "XML_SIA_AAAA-MM-JJ_GeometryType"
+                layer = QgsVectorLayer(uri.uri(), f"{table}_{QgsWkbTypes.displayString(geom)}", "postgres")
+
+                group.addLayer(layer)
+                QgsProject.instance().addMapLayer(layer, False)
 
 
     def get_fields(self):
