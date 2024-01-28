@@ -265,8 +265,12 @@ class AeroDataVisualizerDialog(QtWidgets.QDialog, FORM_CLASS):
                 header.setSectionResizeMode(1, QHeaderView.Stretch)
                 self.new_tablewidget.setSizePolicy(self.old_tablewidget.sizePolicy())
                 self.gridLayout_snd_tab.addWidget(self.new_tablewidget, 1, 0) # ici 1, 0 signifie que l'élément à remplacer est à la 2e ligne et 1ère colonne de la grille
-                
+                self.visualizeButton = QPushButton("Visualiser",self)
+                self.gridLayout_snd_tab.addWidget(self.visualizeButton, 2, 0)
+
                 self.old_tablewidget.hide()
+
+
 
 
 
