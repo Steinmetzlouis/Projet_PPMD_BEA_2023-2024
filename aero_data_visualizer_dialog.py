@@ -65,56 +65,72 @@ STYLES = {QgsWkbTypes.Point : "style_point_sia.qml", QgsWkbTypes.Polygon: "style
 class AeroDataVisualizerDialog(QtWidgets.QDialog, FORM_CLASS):
     
     def __init__(self, iface, parent=None):
-        """Constructor."""
+        """
+        Initialise une instance de la classe AeroDataVisualizerDialog.
+
+        Args:
+            iface (QgisInterface): Interface QGIS permettant l'accès aux fonctionnalités de QGIS.
+            parent (QWidget): Widget parent de la fenêtre de dialogue (par défaut : None).
+        """
         super(AeroDataVisualizerDialog, self).__init__(parent)
+
+        # Assignation de l'interface QGIS
         self.iface = iface
+
+        # Configuration de l'interface utilisateur
         self.setupUi(self)
         self.setWindowFlags(Qt.Window)
 
-        QgsMessageLog.logMessage("Bienvenue dans le bien nommé plugin AeroDataVisualizer ! ")
-
+        # Initialisation des variables de classe
         self.rubberband = None
         self.mapTool = None
         self.extent = None
         self.extent_wgs84 = None
         self.date_value = None
         self.user_date = None
-
         self.fields = None
 
-        # Pour trouver le QTabWidget 
+        # Recherche des éléments d'interface utilisateur
         self.gridLayout_snd_tab = self.findChild(QGridLayout, "gridLayout_5")
         self.tab_widget = self.findChild(QtWidgets.QTabWidget, 'tabWidget')
         self.first_tab = self.tab_widget.widget(0)
         self.snd_tab = self.tab_widget.widget(1)
-
         self.old_tablewidget = self.findChild(QtWidgets.QTableView, 'tableView')
         self.new_tablewidget = None
         self.visualizeButton = None
 
+        # Chemin du répertoire du plugin
         self.plugin_dir = op.dirname(__file__)
 
+        # Vérification de l'existence du QTabWidget
         if self.tab_widget:
-            
             QgsMessageLog.logMessage("TabWidget trouvé", 'ADV', level=Qgis.Info)
-            
 
+            # Connexion des signaux aux slots pour les boutons
             confirmButton = self.findChild(QtWidgets.QPushButton, 'confirmButton')
             coverageButton = self.findChild(QtWidgets.QPushButton, 'coverageButton')
 
-            if confirmButton :
-
+            if confirmButton:
                 QgsMessageLog.logMessage("Bouton 'Valider' trouvé", 'ADV', level=Qgis.Info)
-
                 confirmButton.clicked.connect(self.on_valider_clicked)
 
-            if coverageButton :
-
+            if coverageButton:
                 QgsMessageLog.logMessage("Bouton 'Saisir emprise' trouvé", 'ADV', level=Qgis.Info)
                 coverageButton.clicked.connect(self.on_saisir_emprise_clicked)
 
+
     def handle_extent_selected(self):
-        #étendue
+        """
+        Gère la sélection de l'étendue sur la carte QGIS par l'utilisateur. 
+        
+        Elle récupère l'étendue sélectionnée par l'utilisateur, s'assure que ces informations 
+        soient dans le système de coordonnées WGS84, et affiche les coordonnées du coin inférieur 
+        gauche et supérieur droit  de l'emprise correspondante dans une étiquette visible depuis l'interface. 
+        
+        De plus, elle met à jour une prévisualisation de la carte en affichant l'étendue sélectionnée dans l'interface.
+
+        """
+        # Récupérer l'étendue sélectionnée par l'utilisateur
         self.extent = self.mapTool.extent()
 
         # Définir le système de référence source (le CRS actuel de la carte)
@@ -135,120 +151,110 @@ class AeroDataVisualizerDialog(QtWidgets.QDialog, FORM_CLASS):
             round(self.extent_wgs84.yMaximum(), 2)
         )
 
-        # QgsMessageLog.logMessage(self.extent, 'ADV', level=Qgis.Info)
-        # QgsMessageLog.logMessage(self.extent_wgs84, 'ADV', level=Qgis.Info)
-        QgsMessageLog.logMessage(f"Emprise sélectionnée (WGS84):{extent_wgs84_str}", 'ADV', level=Qgis.Info)
+        # Afficher l'étendue sélectionnée dans les coordonnées WGS84
+        QgsMessageLog.logMessage(f"Emprise sélectionnée (WGS84): {extent_wgs84_str}", 'ADV', level=Qgis.Info)
         self.empriseLabel.setText(f'Emprise définie : {extent_wgs84_str}')
 
+        # Effacer le rubberband et le redessiner avec la nouvelle étendue sélectionnée
         self.mapTool.clearRubberBand()
-
         self.mapCanvas.setLayers(self.iface.mapCanvas().layers())
         self.mapCanvas.setExtent(self.extent)
         self.mapCanvas.setCanvasColor(Qt.white)
         self.mapCanvas.enableAntiAliasing(True)
         if self.rubberband is not None:
             self.mapCanvas.scene().removeItem(self.rubberband)
-        self.rubberband = QgsRubberBand(self.mapCanvas, QgsWkbTypes.PolygonGeometry)  # polygon
+        self.rubberband = QgsRubberBand(self.mapCanvas, QgsWkbTypes.PolygonGeometry)  # polygone
         self.rubberband.setToGeometry(QgsGeometry.fromRect(self.extent), None)
         self.mapCanvas.refreshAllLayers()
         self.mapCanvas.show()
 
+        # Afficher la fenêtre normale
         self.showNormal()
-
         self.raise_()
         self.activateWindow()
 
 
+
     def on_valider_clicked(self):
+        """
+        Gère l'événement de clic sur le bouton "Valider".
+
+        Cette méthode récupère la date saisie par l'utilisateur et effectue une requête
+        à la base de données pour obtenir les dates de mise à jour de toutes les tables de la BDD
+        pour ensuite déterminer quelle est la table avec la date de mise à jour la plus proche antièrieurement
+        à celle saisie par l'utilisateur.
+        En fonction de l'étendue spatiale sélectionnée, une requête SQL est construite
+        pour extraire les identifiants 'lk' des objets dont la géométrie est comprise 
+        dans l'enveloppe spatiale définie dans la base de données.
+        Les identifiants 'lk' sont ensuite affichés dans un tableau dans le second onglet
+        pour la sélection ultérieure par l'utilisateur.
+
+        """
+        # Désactiver l'outil de sélection d'emprise sur la carte
         self.iface.mapCanvas().unsetMapTool(self.mapTool)
-        
+
+        # Récupérer la date saisie par l'utilisateur
         if self.surveyDate:
-            # On récupère la valeur de la date saisie
             self.date_value = self.surveyDate.date().toString("yyyy-MM-dd")
             QgsMessageLog.logMessage(f"Date choisie : {self.date_value}", 'ADV', level=Qgis.Info)
         else:
             QgsMessageLog.logMessage("Objet QDateEdit non trouvé.", 'ADV', level=Qgis.Info)
             return
 
-        # Chemin vers le fichier contenant les informations de connexion
+        # Récupérer les paramètres de connexion à la base de données depuis un fichier JSON
         path = op.join(op.dirname(__file__), JSON_LOG_FILE)
-
-        # conn_params = {
-        #     'database': "projet_BEA",
-        #     'user': "postgres",
-        #     'host': "localhost",
-        #     'password': "postgres",
-        #     'port': 5432
-        # }
-
         with open(path) as file:
             conn_params = json.load(file)
 
+        # Établir une connexion à la base de données PostgreSQL
         conn = psycopg2.connect(**conn_params)
         cursor = conn.cursor()
 
-        # Sélectionnez les noms des tables qui commencent par "XML_SIA_"
+        # Sélectionner les noms des tables commençant par "XML_SIA_"
         cursor.execute("""
             SELECT table_name 
             FROM information_schema.tables 
             WHERE table_schema = 'public'
             AND table_name LIKE 'XML_SIA_%'
         """)
-
-        # Récupérer les résultats de la requête
         tables = [table[0] for table in cursor.fetchall()]
-        QgsMessageLog.logMessage(f"Tables commençant par XML_SIA_: {tables}", 'ADV', level=Qgis.Info)
 
+        # Formater les dates des tables pour une comparaison ultérieure
         dates_formatted = []
-
         for table in tables:
-            # Extraire la partie de la date du nom de la table
-            date_part = table.replace("XML_SIA_", "")  # Supprimer le préfixe
-            # Convertir la partie de la date en objet datetime
+            date_part = table.replace("XML_SIA_", "")  
             try:
                 date_obj = datetime.strptime(date_part, "%Y_%m_%d")
-                # Formater la date au format "aaaa-mm-jj"
                 formatted_date = date_obj.strftime("%Y-%m-%d")
-                # Ajouter la date formatée à la liste dates_formatted
                 dates_formatted.append(formatted_date)
             except ValueError:
                 QgsMessageLog.logMessage(f"Impossible de convertir la date dans le nom de la table : {table}", 'ADV', level=Qgis.Info)
 
-        QgsMessageLog.logMessage(f"Dates formatées : {dates_formatted}", 'ADV', level=Qgis.Info)
-
+        # Sélectionner la date la plus proche de celle saisie par l'utilisateur
         user_date = nearest_table_date(self.date_value, dates_formatted)
         self.user_date = user_date
 
-        #la on met le code qui fait la checklist avec tous les lk
-
+        # Construire la requête SQL en fonction de l'étendue spatiale sélectionnée
         if self.extent_wgs84 is not None :
-
             rect = self.extent_wgs84
             xmin, ymin, xmax, ymax = rect.xMinimum(), rect.yMinimum(), rect.xMaximum(), rect.yMaximum()
-
-            #enveloppe pour la requete spatiale
             geom_bound = f'ST_MakeEnvelope({xmin}, {ymin}, {xmax}, {ymax}, 4326)'
-
-            # Construction de la requête SQL avec la date dynamique
-            # sql = f'SELECT * FROM {schema}.{table} WHERE ST_Within({geom_col}, {geom_bound})'
-            #sql_query = f"""SELECT lk FROM {schema}.XML_SIA_{user_date.replace('-', '_')}"""
             sql_query = f"""SELECT lk FROM {SCHEMA}."XML_SIA_{user_date.replace('-', '_')}" WHERE ST_Within({GEOM_COL}, {geom_bound})"""
         else:
             sql_query = f"""SELECT lk FROM {SCHEMA}."XML_SIA_{user_date.replace('-', '_')}" """
 
-        # Exécutez la requête SQL et récupérez les noms de colonne "lk"
+        # Exécuter la requête SQL pour récupérer les identifiants 'lk'
         cursor.execute(sql_query)
-
-        # Récupérez tous les résultats de la requête
         lk_names = cursor.fetchall()
 
+        # Afficher les identifiants 'lk' dans un tableau pour la sélection ultérieure par l'utilisateur
         fields = []
-        # Affichez les noms de colonne "lk"
         for name in lk_names:
             fields.append(name[0])
 
         self.fields = fields
 
+        # Créer un nouveau tableau pour afficher les identifiants 'lk'
         self.new_tablewidget = QTableWidget(len(self.fields), 2, self)
         self.new_tablewidget.horizontalHeader().setStretchLastSection(True)
         self.new_tablewidget.setHorizontalHeaderLabels(["", "Nom attribut"])
@@ -259,84 +265,132 @@ class AeroDataVisualizerDialog(QtWidgets.QDialog, FORM_CLASS):
             self.new_tablewidget.setItem(i, 0, item)
             self.new_tablewidget.setItem(i, 1, QTableWidgetItem(field_name))
 
+        # Configurer l'affichage du nouveau tableau et le bouton de visualisation
         header = self.new_tablewidget.horizontalHeader()
         header.setSectionResizeMode(0, QHeaderView.ResizeToContents)
         header.setSectionResizeMode(1, QHeaderView.Stretch)
         self.new_tablewidget.setSizePolicy(self.old_tablewidget.sizePolicy())
-        self.gridLayout_snd_tab.addWidget(self.new_tablewidget, 1, 0) # ici 1, 0 signifie que l'élément à remplacer est à la 2e ligne et 1ère colonne de la grille
+        self.gridLayout_snd_tab.addWidget(self.new_tablewidget, 1, 0)
         self.visualizeButton = QPushButton("Visualiser",self)
         self.gridLayout_snd_tab.addWidget(self.visualizeButton, 2, 0)
 
+        # Connecter le clic sur le bouton de visualisation à la méthode correspondante
         self.visualizeButton.clicked.connect(self.on_visualiser_clicked)
 
+        # Masquer l'ancien tableau et passer à l'onglet de sélection des attributs
         self.old_tablewidget.hide()
-        
         self.tabWidget.setCurrentIndex(1)
 
+
     def on_visualiser_clicked(self):
+        """
+        Gère l'événement de clic sur le bouton "Visualiser".
+
+        Cette méthode récupère les champs sélectionnés par l'utilisateur, puis crée
+        des couches vectorielles dans QGIS à partir des données correspondantes dans la base de données.
+        Les couches sont organisées dans un groupe de couches portant le nom de la table de la BDD dont elles sont issues.
+
+        """
+        # Récupérer les champs sélectionnés par l'utilisateur
         liste = self.get_fields()
         if len(liste) == 0:
             return
+
+        # Enregistrer les champs sélectionnés dans le journal de messages
         QgsMessageLog.logMessage(f"Liste points = {liste}", 'ADV', level=Qgis.Info)
 
+        # Nom de la table XML_SIA correspondante à la date sélectionnée par l'utilisateur
         table = f"XML_SIA_{self.user_date.replace('-', '_')}"
 
+        # Types de géométrie à prendre en charge (point, ligne, polygone)
         geometries = [QgsWkbTypes.Point, QgsWkbTypes.LineString, QgsWkbTypes.Polygon]
 
-        # where_sql = f"""lk IN ({"','".join(i for i in liste)})"""
+        # Construction de la clause WHERE pour la requête SQL
         where_sql = f'lk IN {str(tuple(liste)).replace(",","") if len(liste) < 2 else str(tuple(liste))}'
 
+        # Chemin vers le fichier contenant les informations de connexion
         path = op.join(op.dirname(__file__), JSON_LOG_FILE)
 
+        # Définir le chemin d'accès pour les symboles SIA
         QgsExpressionContextUtils.setProjectVariable(QgsProject.instance(), "svg_path",
-                                                     op.join(self.plugin_dir, "symboles_sia/"))
-        
+                                                    op.join(self.plugin_dir, "symboles_sia/"))
+
+        # Charger les informations de connexion à la base de données depuis le fichier JSON
         with open(path) as file:
             conn = json.load(file)
             groupName = table
-            # Création d'un groupe de couche nommé "XML_SIA_AAAA-MM-JJ"
+
+            # Création d'un groupe de couches nommé "XML_SIA_AAAA-MM-JJ"
             root = QgsProject.instance().layerTreeRoot()
             group = root.insertGroup(0, groupName)
 
+            # Création des couches vectorielles pour chaque type de géométrie
             for geom in geometries:
-
                 uri = QgsDataSourceUri()
                 uri.setConnection(conn["host"], conn["port"], conn["database"], conn["user"], conn["password"])
-                #uri.setParam("checkPrimaryKeyUnicity", "0")
                 uri.setSrid("4326")
                 uri.setWkbType(geom)
-                # uri.setDataSource('', f'({sql})', geom_col, aSql='', aKeyColumn='tid')
                 uri.setDataSource(SCHEMA, table, GEOM_COL, aKeyColumn='pk', aSql=where_sql)
-                # Le nom de la couche sera : "XML_SIA_AAAA-MM-JJ_GeometryType"
+
+                # Nom de la couche : "XML_SIA_AAAA-MM-JJ_GeometryType"
                 layer = QgsVectorLayer(uri.uri(), f"{table}_{QgsWkbTypes.displayString(geom)}", "postgres")
 
+                # Ajout de la couche au groupe
                 group.addLayer(layer)
                 QgsProject.instance().addMapLayer(layer, False)
+
+                # Chargement du style de la couche (s'il est disponible)
                 if geom in STYLES:
                     layer.loadNamedStyle(op.join(self.plugin_dir, STYLES[geom]))
+
+                # Actualisation de la couche
                 layer.triggerRepaint()
 
 
+
     def get_fields(self):
+        """
+        Récupère les champs sélectionnés par l'utilisateur dans le tableau du second onglet.
+
+        Cette méthode parcourt la tableau des attributs et récupère les champs
+        qui ont été cochés par l'utilisateur. Elle retourne une liste contenant
+        les noms des champs sélectionnés.
+
+        Returns:
+            list: Liste des noms des champs sélectionnés par l'utilisateur.
+        """
         fields = []
+        # Parcourir toutes les lignes du tableau
         for row in range(self.new_tablewidget.rowCount()):
+            # Récupérer l'élément de case à cocher dans la colonne 0
             item = self.new_tablewidget.item(row, 0)
+            # Vérifier si la case est cochée
             if item.checkState() == Qt.Checked:
+                # Ajouter le nom du champ correspondant à la liste des champs sélectionnés
                 fields.append(self.new_tablewidget.item(row, 1).text())
         return fields
 
 
+
     def on_saisir_emprise_clicked(self):
-        
-        #cache la fenetre du plugin
+        """
+        Gère l'événement de clic sur le bouton "Saisir l'emprise".
+
+        Cette méthode cache la fenêtre du plugin et active l'outil de sélection d'emprise sur la carte.
+        Lorsque l'utilisateur sélectionne une emprise sur la carte, la méthode handle_extent_selected est appelée.
+
+        """
+        # Cacher la fenêtre du plugin
         self.showMinimized()
 
-
-
+        # Accéder à la carte QGIS
         canvas = self.iface.mapCanvas()
+
+        # Activer l'outil de sélection d'emprise sur la carte
         self.mapTool = QgsMapToolExtent(canvas)
         self.mapTool.extentChanged.connect(self.handle_extent_selected)
         canvas.setMapTool(self.mapTool)
+
 
 
     
