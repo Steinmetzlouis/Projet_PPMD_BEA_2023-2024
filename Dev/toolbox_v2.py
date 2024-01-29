@@ -5,6 +5,18 @@ Created on Sat Dec 16 15:18:45 2023
 @author: lstei
 """
 
+### ------------------------    Description    ------------------------ ###
+# Ce script permet de créer une table dans une base de données géographique (BDDG) PostgreSQL à partir de fichiers XML SIA.
+# Il extrait les données concernant les espaces, les NavFixs, les obstacles, etc., les organise et les ajoute à la BDDG.
+
+
+### ------------------------    Instructions    ------------------------ ###
+# 1. Assurez-vous d'avoir les bibliothèques nécessaires installées (Pandas, GeoPandas, psycopg2, SQLAlchemy, geoalchemy2).
+#    Vous pouvez les installer avec la commande : pip install pandas, geopandas psycopg2 SQLAlchemy geoalchemy2
+# 2. Renseignez les paramètres de connexion à la base de données PostgreSQL ci-dessous(dans conn_params).
+# 3. Spécifiez le chemin et le nom du fichier XML SIA que vous souhaitez traiter.
+# 4. Exécutez le script.
+
 
 ### ------------------------    Imports    ------------------------ ###
 import xml.etree.ElementTree as ET
