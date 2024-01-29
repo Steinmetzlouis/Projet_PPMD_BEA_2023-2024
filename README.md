@@ -7,6 +7,8 @@ Le premier objectif est de comprendre la nature et l’organisation des informat
 
 La présentation complète du sujet est à retrouver [ici](https://github.com/Steinmetzlouis/Projet_PPMD_BEA_2023-2024/blob/BDD/doc/PPMD_ProjetInfo_BEA_SGBD_SIA.pdf).
 
+Le rapport d'analyse et de développement est à retrouver [ici](https://github.com/Steinmetzlouis/Projet_PPMD_BEA_2023-2024/blob/BDD/doc/Rapport_Final_Projet_Info_PPMD.pdf).
+
 
 Toutes les bibliothèques nécessaires pour exécuter ces scripts Python sont résumées dans ce [fichier](https://github.com/Steinmetzlouis/Projet_PPMD_BEA_2023-2024/blob/BDD/Dev/requirements.txt)
 
