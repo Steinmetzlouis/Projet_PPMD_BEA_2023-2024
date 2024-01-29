@@ -23,10 +23,12 @@
 """
 
 import os
+import os.path as op
 
 from qgis.PyQt import uic
 from qgis.PyQt import QtWidgets
-from qgis.core import QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsProject, QgsWkbTypes, QgsGeometry
+from qgis.core import QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsProject, QgsGeometry, QgsMessageLog, Qgis,\
+    QgsExpressionContextUtils
 from qgis.PyQt.QtWidgets import QWidget, QTableWidget, QTableWidgetItem, QHeaderView, QVBoxLayout, QHBoxLayout, QPushButton, QGridLayout
 from qgis.core import QgsVectorLayer, QgsDataSourceUri, QgsProject, QgsWkbTypes
 
@@ -53,7 +55,11 @@ FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'aero_data_visualizer_dialog_base.ui'))
 
 
-
+JSON_LOG_FILE = "id.json"
+# JSON_LOG_FILE = "jfv.json"
+SCHEMA = "public"
+GEOM_COL = "geometry"
+STYLES = {QgsWkbTypes.Point : "style_point_sia.qml", QgsWkbTypes.Polygon: "style_polygon_sia.qml"}
 
 
 class AeroDataVisualizerDialog(QtWidgets.QDialog, FORM_CLASS):
@@ -65,7 +71,7 @@ class AeroDataVisualizerDialog(QtWidgets.QDialog, FORM_CLASS):
         self.setupUi(self)
         self.setWindowFlags(Qt.Window)
 
-        print("Bienvenue dans le bien nommé plugin AeroDataVisualizer ! ")
+        QgsMessageLog.logMessage("Bienvenue dans le bien nommé plugin AeroDataVisualizer ! ")
 
         self.rubberband = None
         self.mapTool = None
@@ -86,9 +92,11 @@ class AeroDataVisualizerDialog(QtWidgets.QDialog, FORM_CLASS):
         self.new_tablewidget = None
         self.visualizeButton = None
 
+        self.plugin_dir = op.dirname(__file__)
+
         if self.tab_widget:
             
-            print("TabWidget trouvé")
+            QgsMessageLog.logMessage("TabWidget trouvé", 'ADV', level=Qgis.Info)
             
 
             confirmButton = self.findChild(QtWidgets.QPushButton, 'confirmButton')
@@ -96,22 +104,16 @@ class AeroDataVisualizerDialog(QtWidgets.QDialog, FORM_CLASS):
 
             if confirmButton :
 
-                print("Bouton 'Valider' trouvé")
+                QgsMessageLog.logMessage("Bouton 'Valider' trouvé", 'ADV', level=Qgis.Info)
 
                 confirmButton.clicked.connect(self.on_valider_clicked)
 
             if coverageButton :
 
-                print("Bouton 'Saisir emprise' trouvé")
+                QgsMessageLog.logMessage("Bouton 'Saisir emprise' trouvé", 'ADV', level=Qgis.Info)
                 coverageButton.clicked.connect(self.on_saisir_emprise_clicked)
-            
-
-
-
-
 
     def handle_extent_selected(self):
-        
         #étendue
         self.extent = self.mapTool.extent()
 
@@ -133,9 +135,9 @@ class AeroDataVisualizerDialog(QtWidgets.QDialog, FORM_CLASS):
             round(self.extent_wgs84.yMaximum(), 2)
         )
 
-        print(self.extent)
-        print(self.extent_wgs84)
-        print("Emprise sélectionnée (WGS84):", extent_wgs84_str)
+        # QgsMessageLog.logMessage(self.extent, 'ADV', level=Qgis.Info)
+        # QgsMessageLog.logMessage(self.extent_wgs84, 'ADV', level=Qgis.Info)
+        QgsMessageLog.logMessage(f"Emprise sélectionnée (WGS84):{extent_wgs84_str}", 'ADV', level=Qgis.Info)
         self.empriseLabel.setText(f'Emprise définie : {extent_wgs84_str}')
 
         self.mapTool.clearRubberBand()
@@ -157,162 +159,137 @@ class AeroDataVisualizerDialog(QtWidgets.QDialog, FORM_CLASS):
         self.activateWindow()
 
 
-
     def on_valider_clicked(self):
-
         self.iface.mapCanvas().unsetMapTool(self.mapTool)
         
         if self.surveyDate:
             # On récupère la valeur de la date saisie
             self.date_value = self.surveyDate.date().toString("yyyy-MM-dd")
-
-
+            QgsMessageLog.logMessage(f"Date choisie : {self.date_value}", 'ADV', level=Qgis.Info)
         else:
-            print("Objet QDateEdit non trouvé.")
+            QgsMessageLog.logMessage("Objet QDateEdit non trouvé.", 'ADV', level=Qgis.Info)
+            return
+
+        # Chemin vers le fichier contenant les informations de connexion
+        path = op.join(op.dirname(__file__), JSON_LOG_FILE)
+
+        # conn_params = {
+        #     'database': "projet_BEA",
+        #     'user': "postgres",
+        #     'host': "localhost",
+        #     'password': "postgres",
+        #     'port': 5432
+        # }
+
+        with open(path) as file:
+            conn_params = json.load(file)
+
+        conn = psycopg2.connect(**conn_params)
+        cursor = conn.cursor()
+
+        # Sélectionnez les noms des tables qui commencent par "XML_SIA_"
+        cursor.execute("""
+            SELECT table_name 
+            FROM information_schema.tables 
+            WHERE table_schema = 'public'
+            AND table_name LIKE 'XML_SIA_%'
+        """)
+
+        # Récupérer les résultats de la requête
+        tables = [table[0] for table in cursor.fetchall()]
+        QgsMessageLog.logMessage(f"Tables commençant par XML_SIA_: {tables}", 'ADV', level=Qgis.Info)
+
+        dates_formatted = []
+
+        for table in tables:
+            # Extraire la partie de la date du nom de la table
+            date_part = table.replace("XML_SIA_", "")  # Supprimer le préfixe
+            # Convertir la partie de la date en objet datetime
+            try:
+                date_obj = datetime.strptime(date_part, "%Y_%m_%d")
+                # Formater la date au format "aaaa-mm-jj"
+                formatted_date = date_obj.strftime("%Y-%m-%d")
+                # Ajouter la date formatée à la liste dates_formatted
+                dates_formatted.append(formatted_date)
+            except ValueError:
+                QgsMessageLog.logMessage(f"Impossible de convertir la date dans le nom de la table : {table}", 'ADV', level=Qgis.Info)
+
+        QgsMessageLog.logMessage(f"Dates formatées : {dates_formatted}", 'ADV', level=Qgis.Info)
+
+        user_date = nearest_table_date(self.date_value, dates_formatted)
+        self.user_date = user_date
+
+        #la on met le code qui fait la checklist avec tous les lk
 
         if self.extent_wgs84 is not None :
 
-            print("coucou")
-            
             rect = self.extent_wgs84
             xmin, ymin, xmax, ymax = rect.xMinimum(), rect.yMinimum(), rect.xMaximum(), rect.yMaximum()
 
-            # Chemin vers le fichier contenant les informations de connexion
-            path = "/Users/louis/AppData/Roaming/QGIS/QGIS3/profiles/default/python/plugins/Projet_PPMD_BEA_2023-2024/id.json"
+            #enveloppe pour la requete spatiale
+            geom_bound = f'ST_MakeEnvelope({xmin}, {ymin}, {xmax}, {ymax}, 4326)'
 
-            if self.extent_wgs84 is not None:
-                
-                rect = self.extent_wgs84
-                xmin, ymin, xmax, ymax = rect.xMinimum(), rect.yMinimum(), rect.xMaximum(), rect.yMaximum()
+            # Construction de la requête SQL avec la date dynamique
+            # sql = f'SELECT * FROM {schema}.{table} WHERE ST_Within({geom_col}, {geom_bound})'
+            #sql_query = f"""SELECT lk FROM {schema}.XML_SIA_{user_date.replace('-', '_')}"""
+            sql_query = f"""SELECT lk FROM {SCHEMA}."XML_SIA_{user_date.replace('-', '_')}" WHERE ST_Within({GEOM_COL}, {geom_bound})"""
+        else:
+            sql_query = f"""SELECT lk FROM {SCHEMA}."XML_SIA_{user_date.replace('-', '_')}" """
 
-                conn_params = {
-                    'database': "projet_BEA",
-                    'user': "postgres",
-                    'host': "localhost",
-                    'password': "postgres",
-                    'port': 5432
-                }
+        # Exécutez la requête SQL et récupérez les noms de colonne "lk"
+        cursor.execute(sql_query)
 
-                conn = psycopg2.connect(**conn_params)
-                cursor = conn.cursor()
+        # Récupérez tous les résultats de la requête
+        lk_names = cursor.fetchall()
 
-                # Sélectionnez les noms des tables qui commencent par "XML_SIA_"
-                cursor.execute("""
-                    SELECT table_name 
-                    FROM information_schema.tables 
-                    WHERE table_schema = 'public' 
-                    AND table_name LIKE 'XML_SIA_%'
-                """)
+        fields = []
+        # Affichez les noms de colonne "lk"
+        for name in lk_names:
+            fields.append(name[0])
 
-                # Récupérer les résultats de la requête
-                tables = [table[0] for table in cursor.fetchall()]
-                print("Tables commençant par XML_SIA_: ", tables)
+        self.fields = fields
 
-                dates_formatted = []
+        self.new_tablewidget = QTableWidget(len(self.fields), 2, self)
+        self.new_tablewidget.horizontalHeader().setStretchLastSection(True)
+        self.new_tablewidget.setHorizontalHeaderLabels(["", "Nom attribut"])
+        for i, field_name in enumerate(self.fields):
+            item = QTableWidgetItem()
+            item.setFlags(Qt.ItemIsUserCheckable | Qt.ItemIsEnabled)
+            item.setCheckState(Qt.Unchecked)
+            self.new_tablewidget.setItem(i, 0, item)
+            self.new_tablewidget.setItem(i, 1, QTableWidgetItem(field_name))
 
-                for table in tables:
-                    # Extraire la partie de la date du nom de la table
-                    date_part = table.replace("XML_SIA_", "")  # Supprimer le préfixe
-                    # Convertir la partie de la date en objet datetime
-                    try:
-                        date_obj = datetime.strptime(date_part, "%Y_%m_%d")
-                        # Formater la date au format "aaaa-mm-jj"
-                        formatted_date = date_obj.strftime("%Y-%m-%d")
-                        # Ajouter la date formatée à la liste dates_formatted
-                        dates_formatted.append(formatted_date)
-                    except ValueError:
-                        print(f"Impossible de convertir la date dans le nom de la table : {table}")
+        header = self.new_tablewidget.horizontalHeader()
+        header.setSectionResizeMode(0, QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(1, QHeaderView.Stretch)
+        self.new_tablewidget.setSizePolicy(self.old_tablewidget.sizePolicy())
+        self.gridLayout_snd_tab.addWidget(self.new_tablewidget, 1, 0) # ici 1, 0 signifie que l'élément à remplacer est à la 2e ligne et 1ère colonne de la grille
+        self.visualizeButton = QPushButton("Visualiser",self)
+        self.gridLayout_snd_tab.addWidget(self.visualizeButton, 2, 0)
 
-                print("Dates formatées : ", dates_formatted)
+        self.visualizeButton.clicked.connect(self.on_visualiser_clicked)
 
-                user_date = nearest_table_date(self.date_value,dates_formatted)
-                self.user_date = user_date
-
-                #la on met le code qui fait la checklist avec tous les lk 
-                
-                #enveloppe pour la requete spatiale
-                geom_bound = f'ST_MakeEnvelope({xmin}, {ymin}, {xmax}, {ymax}, 4326)'
-                geom_col = "geometry"
-
-                # Configuration du code de Louis
-                schema = "public"  # imposé par le code de Louis
-
-                # Construction de la requête SQL avec la date dynamique
-                # sql = f'SELECT * FROM {schema}.{table} WHERE ST_Within({geom_col}, {geom_bound})'
-                #sql_query = f"""SELECT lk FROM {schema}.XML_SIA_{user_date.replace('-', '_')}"""
-                sql_query = f"""SELECT lk FROM {schema}."XML_SIA_{user_date.replace('-', '_')}" WHERE ST_Within({geom_col}, {geom_bound})"""
-
-                # Exécutez la requête SQL et récupérez les noms de colonne "lk"
-                cursor.execute(sql_query)
-
-                # Récupérez tous les résultats de la requête
-                lk_names = cursor.fetchall()
-
-                fields = []
-                # Affichez les noms de colonne "lk"
-                for name in lk_names:
-                    fields.append(name[0])
-                
-                self.fields = fields
-
-                self.new_tablewidget = QTableWidget(len(self.fields), 2, self)
-                self.new_tablewidget.horizontalHeader().setStretchLastSection(True)
-                self.new_tablewidget.setHorizontalHeaderLabels(["", "Nom attribut"])
-                for i, field_name in enumerate(self.fields):
-                    item = QTableWidgetItem()
-                    item.setFlags(Qt.ItemIsUserCheckable | Qt.ItemIsEnabled)
-                    item.setCheckState(Qt.Unchecked)
-                    self.new_tablewidget.setItem(i, 0, item)
-                    self.new_tablewidget.setItem(i, 1, QTableWidgetItem(field_name))
-
-                header = self.new_tablewidget.horizontalHeader()
-                header.setSectionResizeMode(0, QHeaderView.ResizeToContents)
-                header.setSectionResizeMode(1, QHeaderView.Stretch)
-                self.new_tablewidget.setSizePolicy(self.old_tablewidget.sizePolicy())
-                self.gridLayout_snd_tab.addWidget(self.new_tablewidget, 1, 0) # ici 1, 0 signifie que l'élément à remplacer est à la 2e ligne et 1ère colonne de la grille
-                self.visualizeButton = QPushButton("Visualiser",self)
-                self.gridLayout_snd_tab.addWidget(self.visualizeButton, 2, 0)
-
-                self.visualizeButton.clicked.connect(self.on_visualiser_clicked)
-
-
-
-                self.old_tablewidget.hide()
-
-
-
-
-
-
-
-                
-
-
-
-
-        else :
-
-            print('non')
+        self.old_tablewidget.hide()
         
         self.tabWidget.setCurrentIndex(1)
 
     def on_visualiser_clicked(self):
-
-        print("moooolllaaaa")
-
-        schema = "public"  # imposé par le code de Louis
-
         liste = self.get_fields()
+        if len(liste) == 0:
+            return
+        QgsMessageLog.logMessage(f"Liste points = {liste}", 'ADV', level=Qgis.Info)
 
         table = f"XML_SIA_{self.user_date.replace('-', '_')}"
 
-        geom_col = "geometry"  # imposé par le code de Louis
-        
         geometries = [QgsWkbTypes.Point, QgsWkbTypes.LineString, QgsWkbTypes.Polygon]
 
-        where_sql = f'lk IN {tuple(liste)}'
+        # where_sql = f"""lk IN ({"','".join(i for i in liste)})"""
+        where_sql = f'lk IN {str(tuple(liste)).replace(",","") if len(liste) < 2 else str(tuple(liste))}'
 
-        path = "/Users/louis/AppData/Roaming/QGIS/QGIS3/profiles/default/python/plugins/Projet_PPMD_BEA_2023-2024/id.json"
+        path = op.join(op.dirname(__file__), JSON_LOG_FILE)
+
+        QgsExpressionContextUtils.setProjectVariable(QgsProject.instance(), "svg_path",
+                                                     op.join(self.plugin_dir, "symboles_sia/"))
         
         with open(path) as file:
             conn = json.load(file)
@@ -329,12 +306,15 @@ class AeroDataVisualizerDialog(QtWidgets.QDialog, FORM_CLASS):
                 uri.setSrid("4326")
                 uri.setWkbType(geom)
                 # uri.setDataSource('', f'({sql})', geom_col, aSql='', aKeyColumn='tid')
-                uri.setDataSource(schema, table, geom_col, aKeyColumn='pk', aSql=where_sql)
+                uri.setDataSource(SCHEMA, table, GEOM_COL, aKeyColumn='pk', aSql=where_sql)
                 # Le nom de la couche sera : "XML_SIA_AAAA-MM-JJ_GeometryType"
                 layer = QgsVectorLayer(uri.uri(), f"{table}_{QgsWkbTypes.displayString(geom)}", "postgres")
 
                 group.addLayer(layer)
                 QgsProject.instance().addMapLayer(layer, False)
+                if geom in STYLES:
+                    layer.loadNamedStyle(op.join(self.plugin_dir, STYLES[geom]))
+                layer.triggerRepaint()
 
 
     def get_fields(self):

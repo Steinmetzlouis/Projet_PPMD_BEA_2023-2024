@@ -9,6 +9,7 @@ import sys
 import getpass
 import xmlrpc.client
 from optparse import OptionParser
+from qgis.core import QgsMessageLog, Qgis
 
 standard_library.install_aliases()
 
@@ -33,7 +34,7 @@ def main(parameters, arguments):
         server=parameters.server,
         port=parameters.port,
         endpoint=ENDPOINT)
-    print("Connecting to: %s" % hide_password(address))
+    QgsMessageLog.logMessage("Connecting to: %s" % hide_password(address), 'ADV', level=Qgis.Info)
 
     server = xmlrpc.client.ServerProxy(address, verbose=VERBOSE)
 
@@ -41,18 +42,18 @@ def main(parameters, arguments):
         with open(arguments[0], 'rb') as handle:
             plugin_id, version_id = server.plugin.upload(
                 xmlrpc.client.Binary(handle.read()))
-        print("Plugin ID: %s" % plugin_id)
-        print("Version ID: %s" % version_id)
+        QgsMessageLog.logMessage("Plugin ID: %s" % plugin_id, 'ADV', level=Qgis.Info)
+        QgsMessageLog.logMessage("Version ID: %s" % version_id, 'ADV', level=Qgis.Info)
     except xmlrpc.client.ProtocolError as err:
-        print("A protocol error occurred")
-        print("URL: %s" % hide_password(err.url, 0))
-        print("HTTP/HTTPS headers: %s" % err.headers)
-        print("Error code: %d" % err.errcode)
-        print("Error message: %s" % err.errmsg)
+        QgsMessageLog.logMessage("A protocol error occurred", 'ADV', level=Qgis.Info)
+        QgsMessageLog.logMessage("URL: %s" % hide_password(err.url, 0), 'ADV', level=Qgis.Info)
+        QgsMessageLog.logMessage("HTTP/HTTPS headers: %s" % err.headers, 'ADV', level=Qgis.Info)
+        QgsMessageLog.logMessage("Error code: %d" % err.errcode, 'ADV', level=Qgis.Info)
+        QgsMessageLog.logMessage("Error message: %s" % err.errmsg, 'ADV', level=Qgis.Info)
     except xmlrpc.client.Fault as err:
-        print("A fault occurred")
-        print("Fault code: %d" % err.faultCode)
-        print("Fault string: %s" % err.faultString)
+        QgsMessageLog.logMessage("A fault occurred")
+        QgsMessageLog.logMessage("Fault code: %d" % err.faultCode, 'ADV', level=Qgis.Info)
+        QgsMessageLog.logMessage("Fault string: %s" % err.faultString, 'ADV', level=Qgis.Info)
 
 
 def hide_password(url, start=6):
@@ -88,7 +89,7 @@ if __name__ == "__main__":
         help="Specify server name", metavar="plugins.qgis.org")
     options, args = parser.parse_args()
     if len(args) != 1:
-        print("Please specify zip file.\n")
+        QgsMessageLog.logMessage("Please specify zip file.\n", 'ADV', level=Qgis.Info)
         parser.print_help()
         sys.exit(1)
     if not options.server:
