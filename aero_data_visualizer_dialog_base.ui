@@ -109,7 +109,7 @@
         <widget class="QTableView" name="tableView"/>
        </item>
        <item row="1" column="0" alignment="Qt::AlignHCenter">
-        <widget class="QPushButton" name="pushButton_2">
+        <widget class="QPushButton" name="visualizeButton">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
            <horstretch>0</horstretch>
