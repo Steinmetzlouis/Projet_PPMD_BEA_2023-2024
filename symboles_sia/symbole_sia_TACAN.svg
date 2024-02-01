@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   version="1.1"
+   id="svg2"
+   width="17.355413"
+   height="14.710674"
+   viewBox="0 0 17.355414 14.710674"
+   sodipodi:docname="symbole_sia_NDB.svg"
+   inkscape:dataloss="true"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview854"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="2.3632334"
+     inkscape:cx="22.4269"
+     inkscape:cy="88.649728"
+     inkscape:window-width="1792"
+     inkscape:window-height="997"
+     inkscape:window-x="0"
+     inkscape:window-y="25"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg2" />
+  <defs
+     id="defs6">
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath3454">
+      <g
+         id="g3458">
+        <path
+           d="M 0,2.535 H 417.5143 V 594.9537 H 0 Z"
+           id="path3456" />
+      </g>
+    </clipPath>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath3460">
+      <g
+         id="g3464"
+         transform="matrix(1.0048232,0,0,1.0048232,-367.64198,-55.313223)">
+        <path
+           d="M 0,2.535 H 417.5143 V 594.9537 H 0 Z"
+           id="path3462" />
+      </g>
+    </clipPath>
+  </defs>
+  <g
+     id="g680"
+     transform="matrix(1.3269333,0,0,-1.3269333,11.624274,11.731709)"
+     clip-path="url(#clipPath3460)">
+    <path
+       d="M 0,0 2.208,3.543 3.978,4.573 1.71,8.501 -0.259,7.416 -4.44,7.447 -6.149,8.494 -8.417,4.566 -6.698,3.605 -4.521,0 -4.524,-1.995 h 4.535 z"
+       style="fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#231f20;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path682"
+       inkscape:label="path682" />
+  </g>
+  <path
+     d="m 363.1375,58.28511 c 0,0.29358 0.2379,0.53144 0.5315,0.53144 0.2926,0 0.5314,-0.23786 0.5314,-0.53144 0,-0.29359 -0.2388,-0.53144 -0.5314,-0.53144 -0.2936,0 -0.5315,0.23785 -0.5315,0.53144"
+     style="fill:#231f20;fill-opacity:1;fill-rule:nonzero;stroke:none"
+     id="path684"
+     clip-path="url(#clipPath3454)"
+     transform="matrix(1.3333333,0,0,-1.3333333,-476.21212,85.128669)" />
+</svg>

@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/plugins/aero_data_visualizer" >
+        <file>icon.png</file>
+    </qresource>
+</RCC>
