@@ -24,34 +24,30 @@
        <string>Filtres</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_4">
-       <item row="2" column="0" colspan="2" alignment="Qt::AlignHCenter">
-        <widget class="QPushButton" name="coverageButton">
+       <item row="1" column="2" colspan="4">
+        <widget class="QLabel" name="label_coverage">
          <property name="text">
-          <string>Saisir l'emprise</string>
+          <string>Vous pouvez saisir l'emprise sur laquelle vous souhaitez travailler :</string>
          </property>
         </widget>
        </item>
-       <item row="0" column="0">
-        <widget class="QLabel" name="label_date">
+       <item row="4" column="2" colspan="4" alignment="Qt::AlignHCenter">
+        <widget class="QLabel" name="empriseLabel">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="text">
-          <string>Date de l'événement :</string>
+          <string>Pas d'emprise saisie.</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
          </property>
         </widget>
        </item>
-       <item row="2" column="3">
-        <widget class="QRadioButton" name="within_button">
-         <property name="text">
-          <string>A l'intérieur</string>
-         </property>
-         <property name="checked">
-          <bool>true</bool>
-         </property>
-         <attribute name="buttonGroup">
-          <string notr="true">buttonGroup</string>
-         </attribute>
-        </widget>
-       </item>
-       <item row="2" column="2">
+       <item row="3" column="4">
         <widget class="QRadioButton" name="intersect_button">
          <property name="text">
           <string>Intersecte</string>
@@ -61,14 +57,7 @@
          </attribute>
         </widget>
        </item>
-       <item row="1" column="0" colspan="4">
-        <widget class="QLabel" name="label_coverage">
-         <property name="text">
-          <string>Vous pouvez saisir l'emprise sur laquelle vous souhaitez travailler :</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="2" colspan="2" alignment="Qt::AlignHCenter">
+       <item row="0" column="4" colspan="2" alignment="Qt::AlignHCenter">
         <widget class="QDateEdit" name="surveyDate">
          <property name="buttonSymbols">
           <enum>QAbstractSpinBox::NoButtons</enum>
@@ -88,23 +77,34 @@
          </property>
         </widget>
        </item>
-       <item row="3" column="0" colspan="4" alignment="Qt::AlignHCenter">
-        <widget class="QLabel" name="empriseLabel">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
+       <item row="3" column="5">
+        <widget class="QRadioButton" name="within_button">
          <property name="text">
-          <string>Pas d'emprise saisie.</string>
+          <string>A l'intérieur</string>
          </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">buttonGroup</string>
+         </attribute>
+        </widget>
+       </item>
+       <item row="0" column="2">
+        <widget class="QLabel" name="label_date">
+         <property name="text">
+          <string>Date de l'événement :</string>
          </property>
         </widget>
        </item>
-       <item row="6" column="0" colspan="4">
+       <item row="8" column="2" colspan="4" alignment="Qt::AlignHCenter">
+        <widget class="QPushButton" name="confirmButton">
+         <property name="text">
+          <string>Valider</string>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="2" colspan="4">
         <widget class="QgsMapCanvas" name="mapCanvas" native="true">
          <property name="enabled">
           <bool>true</bool>
@@ -117,12 +117,35 @@
          </property>
         </widget>
        </item>
-       <item row="7" column="0" colspan="4" alignment="Qt::AlignHCenter">
-        <widget class="QPushButton" name="confirmButton">
-         <property name="text">
-          <string>Valider</string>
-         </property>
-        </widget>
+       <item row="3" column="2" colspan="2">
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <widget class="QPushButton" name="coverageButton">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Saisir l'emprise</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="clearButton">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Effacer</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
       </layout>
      </widget>
