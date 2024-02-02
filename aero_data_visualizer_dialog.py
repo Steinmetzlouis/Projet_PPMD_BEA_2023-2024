@@ -99,6 +99,7 @@ class AeroDataVisualizerDialog(QtWidgets.QDialog, FORM_CLASS):
 
         self.confirmButton.clicked.connect(self.on_valider_clicked)
         self.coverageButton.clicked.connect(self.on_saisir_emprise_clicked)
+        self.clearButton.clicked.connect(self.clear_extent)
 
         # Connecter le clic sur le bouton de visualisation à la méthode correspondante
         self.selectAllButton.clicked.connect(self.on_select_all_clicked)
@@ -160,6 +161,12 @@ class AeroDataVisualizerDialog(QtWidgets.QDialog, FORM_CLASS):
         self.raise_()
         self.activateWindow()
 
+
+    def clear_extent(self):
+        self.extent = None
+        self.extent_wgs84 = None
+        if self.rubberband is not None:
+            self.mapCanvas.scene().removeItem(self.rubberband)
 
 
     def on_valider_clicked(self):
@@ -248,7 +255,7 @@ class AeroDataVisualizerDialog(QtWidgets.QDialog, FORM_CLASS):
             self.sql_query = f"""SELECT lk FROM {SCHEMA}."XML_SIA_{self.date}" """
 
         if user_filter is not None:
-            self.sql_query += " AND" if "WHERE" in self.sql_query else "WHERE" + f" UPPER(lk) LIKE UPPER('%{user_filter}%')"
+            self.sql_query += (" AND" if "WHERE" in self.sql_query else "WHERE") + f" UPPER(lk) LIKE UPPER('%{user_filter}%')"
 
                 # Exécuter la requête SQL pour récupérer les identifiants 'lk'
         QgsMessageLog.logMessage(f"Requête : {self.sql_query}", 'ADV', level=Qgis.Info)
@@ -338,6 +345,9 @@ class AeroDataVisualizerDialog(QtWidgets.QDialog, FORM_CLASS):
                 # Chargement du style de la couche (s'il est disponible)
                 if geom in STYLES:
                     layer.loadNamedStyle(op.join(self.plugin_dir, STYLES[geom]))
+
+                # Modification nom affichage infobulle
+                layer.setDisplayExpression("lk")
 
                 # Actualisation de la couche
                 layer.triggerRepaint()
